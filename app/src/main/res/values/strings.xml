@@ -1,0 +1,127 @@
+<resources>
+    <string name="app_name">RfidPassiveApiTestappAndroid</string>
+    <string name="prefs_name">RfidPassiveApiPreferences</string>
+
+    <string name="menu_scan">Scan</string>
+    <string name="menu_stop">Stop</string>
+    <string name="menu_refresh">Refresh</string>
+    <string name="menu_settings">Settings</string>
+
+    <string name="menu_connect">Connect</string>
+    <string name="menu_connecting">Connecting</string>
+    <string name="menu_disconnect">Disconnect</string>
+
+    <string name="title_activity_main">Find BLE device</string>
+    <string name="title_activity_settings">@string/menu_settings</string>
+
+    <string name="unknown_device">Unknown device</string>
+
+    <string name="connect_timeout_text">Connect Timeout (ms)</string>
+    <string name="write_timeout_text">Write Timeout (ms)</string>
+    <string name="first_read_timeout_text">First Read/Notify Timeout (ms)</string>
+    <string name="later_read_timeout_text">Later Read/Notify Timeout (ms)</string>
+
+    <string name="plus">+</string>
+    <string name="minus">-</string>
+    <string name="timeouts_heading">Timeouts</string>
+
+    <!-- init commands -->
+    <string name="reader_is_hf">HF reader (for ISO-15693/ISO-14443 tags)</string>
+    <string name="reader_is_uhf">UHF reader (for EPC tags)</string>
+
+    <string name="firmware_version_value">Firmware-version = %1$s</string>
+
+    <!-- repeating commands -->
+    <string name="availability_status_text">Available:</string>
+    <string name="availability_status_default_status">@string/availability_status_not_available</string>
+    <string name="availability_status_available">yes</string>
+    <string name="availability_status_not_available">no</string>
+
+    <string name="battery_text">Battery:</string>
+
+    <string name="battery_status_text">status</string>
+    <string name="battery_status_default_value">0</string>
+
+    <string name="battery_level_text">level</string>
+    <string name="battery_level_default_value">0.00 V</string>
+    <string name="battery_level_value">%1$s V</string>
+
+    <!-- selectable commands -->
+    <string name="command_select_command">Select Operation</string>
+
+    <string name="command_test_availability">Test Availability</string>
+    <string name="test_availability_value">Availability = %1$s</string>
+
+    <string name="command_sounds">Sound</string>
+
+    <string name="command_light">Light</string>
+    <string name="command_stop_light">Stop Light</string>
+
+    <string name="command_set_shutdown_time">Set Shutdown Time</string>
+    <string name="command_get_shutdown_time">Get Shutdown Time</string>
+    <string name="get_shutdown_time_value">Shutdown-time = %1$d s</string>
+
+    <string name="command_set_rf_power">Set RF Power</string>
+    <string name="command_get_rf_power">Get RF Power</string>
+    <string name="get_rf_power_values">RF-power: level = %1$d, mode = %2$d</string>
+
+    <string name="command_set_iso15693_opt_bit">Set ISO15693 Option Bits (only HF)</string>
+    <string name="command_get_iso15693_opt_bit">Get ISO15693 Option Bits (only HF)</string>
+    <string name="get_iso15693_option_bits_value">ISO-15693 option-bits = %1$s H</string>
+
+    <string name="command_set_iso15693_ext_flag">Set ISO15693 Extension Flag (only HF)</string>
+    <string name="command_get_iso15693_ext_flag">Get ISO15693 Extension Flag (only HF)</string>
+    <string name="get_iso15693_extension_flag_values">ISO15693 extension-flag: flag = %1$b, permanent = %2$b</string>
+
+    <string name="command_set_iso15693_bitrate">Set ISO15693 Bitrate (only HF)</string>
+    <string name="command_get_iso15693_bitrate">Get ISO15693 Bitrate (only HF)</string>
+    <string name="get_iso15693_bitrate_values">ISO15693 bit-rate: rate = %1$d, permanent = %2$b</string>
+
+    <string name="command_set_epc_freq">Set EPC Frequency (only UHF)</string>
+    <string name="command_get_epc_freq">Get EPC Frequency (only UHF)</string>
+    <string name="get_epc_frequency_values">EPC-frequency = %1$d</string>
+
+    <string name="command_set_inventory_mode_scan_on_input">Set Scan On Input</string>
+    <string name="command_set_inventory_mode_normal">Set Normal Scan</string>
+
+
+    <string name="command_do_inventory">Do Inventory</string>
+    <string name="inventory_tag_discovered">Discovered tag ID = %1$s</string>
+
+    <string name="command_read_tag">Read first tag</string>
+    <string name="reading_tag">Reading Tag #%1$s</string>
+    <string name="data_read">Tag read data: %1$s</string>
+
+    <string name="command_write_tag">Write first tag</string>
+    <string name="writing_tag">Writing Tag #%1$s</string>
+    <string name="data_written">Tag data written</string>
+
+    <string name="command_lock_tag">Lock first tag</string>
+    <string name="locking_tag">Locking Tag #%1$s</string>
+    <string name="tag_locked">Tag locked</string>
+
+    <string name="command_read_tid">Read TID for first tag</string>
+    <string name="reading_tid">Reading TID on Tag #%1$s</string>
+    <string name="tid_read">TID: %1$s</string>
+
+    <string name="command_write_id">Write ID for fist tag</string>
+    <string name="writing_id">Writing ID on Tag #%1$s</string>
+    <string name="tag_id_written">Tag ID written</string>
+
+    <string name="command_kill">Kill first tag</string>
+    <string name="killing_tag">Killing Tag #%1$s</string>
+    <string name="tag_killed">Tag killed</string>
+
+
+    <!-- command results and errors -->
+    <string name="result_command_no_error">Result: command = %1$d NO error</string>
+    <string name="result_command_error">Result: command = %1$d, error = %2$d</string>
+
+    <string name="invalid_command_not_HF_reader">Invalid command for not HF reader</string>
+    <string name="invalid_command_not_UHF_reader">Invalid command for not UHF reader</string>
+
+    <string name="invalid_command_no_tag_found">No tag found</string>
+    <string name="invalid_command_no_epc_for_reading_tid">Invalid Tag for reading TID: no EPC_tag</string>
+    <string name="invalid_command_no_epc_for_writing_tid">Invalid Tag for writing TID: no EPC_tag</string>
+    <string name="invalid_command_no_epc_for_killing">Invalid Tag for killing: no EPC_tag</string>
+</resources>

@@ -1,0 +1,18 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+
+    <dimen name="device_activity_vertical_margin">16dp</dimen>
+    <dimen name="device_activity_repeating_tv_height">26dp</dimen>
+    <dimen name="device_activity_repeating_tv_title_margin">16dp</dimen>
+    <dimen name="device_activity_repeating_tv_value_margin">8dp</dimen>
+
+    <dimen name="settings_heading_height">32dp</dimen>
+    <dimen name="settings_heading_first_sub_view_marginTop">24dp</dimen>
+    <dimen name="settings_view_height">40dp</dimen>
+    <dimen name="settings_text_margin">16dp</dimen>
+    <dimen name="settings_text_marginTop">32dp</dimen>
+    <dimen name="settings_tv_width">215dp</dimen>
+    <dimen name="settings_tv_height">26dp</dimen>
+    <dimen name="settings_et_width">75dp</dimen>
+</resources>

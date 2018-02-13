@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
+
+    <!-- ScanActivity -->
+    <string name="error_ble_not_supported">BLE not supported</string>
+
+    <!-- DeviceActivityPassive -->
+    <string name="error_invalid_action">Invalid action</string>
+</resources>

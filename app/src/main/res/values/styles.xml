@@ -1,0 +1,26 @@
+<resources>
+
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
+    </style>
+
+    <style name="OverflowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <!-- Required for pre-Lollipop. -->
+        <item name="overlapAnchor">false</item>
+        <item name="android:dropDownVerticalOffset">-4.0dip</item>
+    </style>
+
+    <style name="AppTheme.TextAppearance.SettingsLabel" parent="TextAppearance.AppCompat.Menu">
+        <item name="android:textSize">15dp</item>
+    </style>
+
+    <style name="AppTheme.TextAppearance.Medium" parent="TextAppearance.AppCompat.Medium"/>
+
+    <style name="AppTheme.TextAppearance.Label" parent="TextAppearance.AppCompat.Menu">
+        <item name="android:textSize">14dp</item>
+    </style>
+
+</resources>
