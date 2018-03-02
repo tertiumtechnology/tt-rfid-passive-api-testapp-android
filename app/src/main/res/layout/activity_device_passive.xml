@@ -2,6 +2,8 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -27,7 +29,7 @@
         android:fillViewport="true"
         android:orientation="horizontal"
         android:scrollbars="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/scroll_guideline"
+        app:layout_constraintBottom_toTopOf="@+id/spinner_guideline"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/device_toolbar">
@@ -41,13 +43,13 @@
     </ScrollView>
 
     <android.support.constraint.Guideline
-        android:id="@+id/scroll_guideline"
+        android:id="@+id/spinner_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.3"/>
 
-    <android.support.v7.widget.AppCompatSpinner
+    <com.tertiumtechnology.testapp.util.widgets.SameSelectionSpinner
         android:id="@+id/select_command_spinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -57,7 +59,7 @@
         android:layout_marginTop="@dimen/device_activity_vertical_margin"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/command_progress_bar"
-        app:layout_constraintTop_toBottomOf="@id/scroll_guideline"/>
+        app:layout_constraintTop_toBottomOf="@id/spinner_guideline"/>
 
     <ProgressBar
         android:id="@+id/command_progress_bar"
@@ -70,11 +72,42 @@
         android:layout_marginTop="@dimen/device_activity_vertical_margin"
         android:indeterminate="true"
         android:visibility="visible"
-
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="@id/select_command_spinner"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/scroll_guideline"/>
+        app:layout_constraintTop_toBottomOf="@id/spinner_guideline"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/inventory_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.4"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/inventory_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="@dimen/device_activity_vertical_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/device_activity_vertical_margin"
+        android:background="@drawable/border"
+        android:orientation="horizontal"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/scroll_guideline"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/inventory_guideline"
+        tools:listitem="@layout/tag_list_item"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/scroll_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.55"/>
 
     <ScrollView
         android:id="@+id/read_scroll_view"
@@ -92,7 +125,7 @@
         app:layout_constraintBottom_toTopOf="@+id/repeating_guideline"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/select_command_spinner">
+        app:layout_constraintTop_toBottomOf="@id/scroll_guideline">
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/read_text_view"

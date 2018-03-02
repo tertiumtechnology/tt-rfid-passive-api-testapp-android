@@ -88,30 +88,41 @@
     <string name="command_do_inventory">Do Inventory</string>
     <string name="inventory_tag_discovered">Discovered tag ID = %1$s</string>
 
-    <string name="command_read_tag">Read first tag</string>
+    <string name="command_read_tag">Read selected tag</string>
     <string name="reading_tag">Reading Tag #%1$s</string>
     <string name="data_read">Tag read data: %1$s</string>
 
-    <string name="command_write_tag">Write first tag</string>
+    <string name="command_write_tag">Write selected tag</string>
     <string name="writing_tag">Writing Tag #%1$s</string>
     <string name="data_written">Tag data written</string>
 
-    <string name="command_lock_tag">Lock first tag</string>
+    <string name="command_lock_tag">Lock selected tag</string>
     <string name="locking_tag">Locking Tag #%1$s</string>
     <string name="tag_locked">Tag locked</string>
 
-    <string name="command_read_tid">Read TID for first tag</string>
+    <string name="command_read_tid">Read TID for selected tag</string>
     <string name="reading_tid">Reading TID on Tag #%1$s</string>
     <string name="tid_read">TID: %1$s</string>
 
-    <string name="command_write_id">Write ID for fist tag</string>
+    <string name="command_write_id">Write ID for selected tag</string>
     <string name="writing_id">Writing ID on Tag #%1$s</string>
     <string name="tag_id_written">Tag ID written</string>
 
-    <string name="command_kill">Kill first tag</string>
+    <string name="command_kill">Kill selected tag</string>
     <string name="killing_tag">Killing Tag #%1$s</string>
     <string name="tag_killed">Tag killed</string>
 
+    <!-- read tag commands spec-->
+    <string name="read_dialog_title">Read %1$s</string>
+    <string name="read_dialog_block_tag">Block</string>
+    <string name="read_dialog_read_button">Read</string>
+
+    <string name="write_dialog_title">Write %1$s</string>
+    <string name="write_dialog_data_tag">Data</string>
+    <string name="write_dialog_write_button">Write</string>
+
+    <string name="rw_dialog_address_tag">Address</string>
+    <string name="rw_dialog_cancel_button">Cancel</string>
 
     <!-- command results and errors -->
     <string name="result_command_no_error">Result: command = %1$d NO error</string>
@@ -120,7 +131,7 @@
     <string name="invalid_command_not_HF_reader">Invalid command for not HF reader</string>
     <string name="invalid_command_not_UHF_reader">Invalid command for not UHF reader</string>
 
-    <string name="invalid_command_no_tag_found">No tag found</string>
+    <string name="invalid_command_no_tag_found">No tag selected found</string>
     <string name="invalid_command_no_epc_for_reading_tid">Invalid Tag for reading TID: no EPC_tag</string>
     <string name="invalid_command_no_epc_for_writing_tid">Invalid Tag for writing TID: no EPC_tag</string>
     <string name="invalid_command_no_epc_for_killing">Invalid Tag for killing: no EPC_tag</string>

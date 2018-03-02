@@ -16,6 +16,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -38,14 +40,17 @@ import com.tertiumtechnology.api.rfidpassiveapilib.listener.AbstractReaderListen
 import com.tertiumtechnology.api.rfidpassiveapilib.listener.AbstractResponseListener;
 import com.tertiumtechnology.testapp.util.BleUtil;
 import com.tertiumtechnology.testapp.util.Chain;
+import com.tertiumtechnology.testapp.util.adapters.InventoryTagsListAdapter;
+import com.tertiumtechnology.testapp.util.dialogs.ReadTagDialogFragment;
+import com.tertiumtechnology.testapp.util.dialogs.WriteTagDialogFragment;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class DeviceActivityPassive extends AppCompatActivity {
+public class DeviceActivityPassive extends AppCompatActivity implements ReadTagDialogFragment.ReadTagListener,
+        WriteTagDialogFragment.WriteTagListener {
 
     interface CommandOperation {
         void execute();
@@ -66,7 +71,7 @@ public class DeviceActivityPassive extends AppCompatActivity {
                 readTextView.setText("");
                 commandSpinner.setSelection(0);
                 commandSpinner.setEnabled(true);
-                tags.clear();
+                clearTags();
 
                 startInitalOperations();
             }
@@ -215,7 +220,7 @@ public class DeviceActivityPassive extends AppCompatActivity {
                     Tag tag = (Tag) data.get(BleServicePassive
                             .INTENT_EXTRA_DATA_INVENTORY_TAG);
 
-                    tags.add(tag);
+                    addTag(tag);
 
                     composeAndAppendInputCommandMsg(getString(R.string.inventory_tag_discovered, tag.toString()),
                             getMsgColor(R.color.colorReadText));
@@ -363,7 +368,8 @@ public class DeviceActivityPassive extends AppCompatActivity {
     private Chain repeatingCommandChain;
     private ArrayList<Integer> repeatingCommandCodes;
 
-    private List<Tag> tags;
+    private InventoryTagsListAdapter inventoryTagsListAdapter;
+    private Tag selectedTag;
 
     public void doSendCommand(String commandName) {
 
@@ -443,6 +449,44 @@ public class DeviceActivityPassive extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    public void onReadTag(int address, int block) {
+        if (bleServicePassive != null) {
+            if (selectedTag != null) {
+                composeAndAppendInputCommandMsg(getString(R.string.reading_tag, selectedTag.toString
+                                ()),
+                        getMsgColor(R.color.colorReadText));
+                bleServicePassive.requestRead(selectedTag, address, block);
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        }
+    }
+
+    @Override
+    public void onWriteTag(int address, String hexData) {
+        if (bleServicePassive != null) {
+            if (selectedTag != null) {
+                composeAndAppendInputCommandMsg(getString(R.string.writing_tag, selectedTag.toString
+                                ()),
+                        getMsgColor(R.color.colorReadText));
+                bleServicePassive.requestWrite(selectedTag, address, hexData);
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        }
+    }
+
+    private void addTag(Tag tag) {
+        inventoryTagsListAdapter.addTag(tag);
+    }
+
     private void allowDisconnect() {
         if (!enableDisconnect) {
             enableDisconnect = true;
@@ -454,6 +498,12 @@ public class DeviceActivityPassive extends AppCompatActivity {
         sendCommandProgressBar.setVisibility(View.INVISIBLE);
         commandSpinner.setEnabled(true);
         allowDisconnect();
+    }
+
+    private void clearTags() {
+        inventoryTagsListAdapter.clear();
+
+        selectedTag = null;
     }
 
     private void composeAndAppendInitMsg(String textMsg, int writeColor) {
@@ -686,7 +736,7 @@ public class DeviceActivityPassive extends AppCompatActivity {
         commandMap.put(getString(R.string.command_do_inventory), new CommandOperation() {
             @Override
             public void execute() {
-                tags.clear();
+                clearTags();
 
                 bleServicePassive.requestDoInventory();
                 // special management of doInventory command, without callback
@@ -701,13 +751,9 @@ public class DeviceActivityPassive extends AppCompatActivity {
         commandMap.put(getString(R.string.command_read_tag), new CommandOperation() {
             @Override
             public void execute() {
-                if (tags.size() > 0) {
-                    Tag firstTag = tags.get(0);
-
-                    composeAndAppendInputCommandMsg(getString(R.string.reading_tag, firstTag.toString
-                                    ()),
-                            getMsgColor(R.color.colorReadText));
-                    bleServicePassive.requestRead(firstTag);
+                if (selectedTag != null) {
+                    ReadTagDialogFragment dialog = ReadTagDialogFragment.newInstance(selectedTag.toString());
+                    dialog.show(getSupportFragmentManager(), "ReadTagDialogFragment");
                 }
                 else {
                     composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
@@ -719,13 +765,9 @@ public class DeviceActivityPassive extends AppCompatActivity {
         commandMap.put(getString(R.string.command_write_tag), new CommandOperation() {
             @Override
             public void execute() {
-                if (tags.size() > 0) {
-                    Tag firstTag = tags.get(0);
-
-                    composeAndAppendInputCommandMsg(getString(R.string.writing_tag, firstTag.toString
-                                    ()),
-                            getMsgColor(R.color.colorReadText));
-                    bleServicePassive.requestWrite(firstTag);
+                if (selectedTag != null) {
+                    WriteTagDialogFragment dialog = WriteTagDialogFragment.newInstance(selectedTag.toString());
+                    dialog.show(getSupportFragmentManager(), "WriteTagDialogFragment");
                 }
                 else {
                     composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
@@ -737,13 +779,12 @@ public class DeviceActivityPassive extends AppCompatActivity {
         commandMap.put(getString(R.string.command_lock_tag), new CommandOperation() {
             @Override
             public void execute() {
-                if (tags.size() > 0) {
-                    Tag firstTag = tags.get(0);
+                if (selectedTag != null) {
 
-                    composeAndAppendInputCommandMsg(getString(R.string.locking_tag, firstTag.toString
+                    composeAndAppendInputCommandMsg(getString(R.string.locking_tag, selectedTag.toString
                                     ()),
                             getMsgColor(R.color.colorReadText));
-                    bleServicePassive.requestLock(firstTag);
+                    bleServicePassive.requestLock(selectedTag);
                 }
                 else {
                     composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
@@ -756,13 +797,13 @@ public class DeviceActivityPassive extends AppCompatActivity {
         commandMap.put(getString(R.string.command_read_tid), new CommandOperation() {
             @Override
             public void execute() {
-                if (tags.size() > 0) {
-                    Tag firstTag = tags.get(0);
-                    if (firstTag instanceof EPC_tag) {
-                        composeAndAppendInputCommandMsg(getString(R.string.reading_tid, firstTag.toString
+                if (selectedTag != null) {
+
+                    if (selectedTag instanceof EPC_tag) {
+                        composeAndAppendInputCommandMsg(getString(R.string.reading_tid, selectedTag.toString
                                         ()),
                                 getMsgColor(R.color.colorReadText));
-                        bleServicePassive.requestReadTID((EPC_tag) firstTag);
+                        bleServicePassive.requestReadTID((EPC_tag) selectedTag);
                     }
                     else {
                         composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_reading_tid),
@@ -781,13 +822,12 @@ public class DeviceActivityPassive extends AppCompatActivity {
         commandMap.put(getString(R.string.command_write_id), new CommandOperation() {
             @Override
             public void execute() {
-                if (tags.size() > 0) {
-                    Tag firstTag = tags.get(0);
 
-                    if (firstTag instanceof EPC_tag) {
-                        composeAndAppendInputCommandMsg(getString(R.string.writing_id, firstTag.toString()),
+                if (selectedTag != null) {
+                    if (selectedTag instanceof EPC_tag) {
+                        composeAndAppendInputCommandMsg(getString(R.string.writing_id, selectedTag.toString()),
                                 getMsgColor(R.color.colorReadText));
-                        bleServicePassive.requestWriteID((EPC_tag) firstTag);
+                        bleServicePassive.requestWriteID((EPC_tag) selectedTag);
                     }
                     else {
                         composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_writing_tid),
@@ -806,13 +846,12 @@ public class DeviceActivityPassive extends AppCompatActivity {
         commandMap.put(getString(R.string.command_kill), new CommandOperation() {
             @Override
             public void execute() {
-                if (tags.size() > 0) {
-                    Tag firstTag = tags.get(0);
+                if (selectedTag != null) {
 
-                    if (firstTag instanceof EPC_tag) {
-                        composeAndAppendInputCommandMsg(getString(R.string.killing_tag, firstTag.toString()),
+                    if (selectedTag instanceof EPC_tag) {
+                        composeAndAppendInputCommandMsg(getString(R.string.killing_tag, selectedTag.toString()),
                                 getMsgColor(R.color.colorReadText));
-                        bleServicePassive.requestKill((EPC_tag) firstTag);
+                        bleServicePassive.requestKill((EPC_tag) selectedTag);
                     }
                     else {
                         composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_killing),
@@ -1031,8 +1070,6 @@ public class DeviceActivityPassive extends AppCompatActivity {
         // repeatingCommandChain
         initRepeatingCommandChain();
 
-        tags = new ArrayList<>();
-
         // manage UI
         setContentView(R.layout.activity_device_passive);
         Toolbar toolbar = findViewById(R.id.device_toolbar);
@@ -1055,14 +1092,13 @@ public class DeviceActivityPassive extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String commandAtPosition = parent.getItemAtPosition(position).toString();
 
-                if (view.isEnabled()) {
+                if (view != null && view.isEnabled()) {
                     doSendCommand(commandAtPosition);
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
         sendCommandProgressBar = findViewById(R.id.command_progress_bar);
@@ -1070,6 +1106,27 @@ public class DeviceActivityPassive extends AppCompatActivity {
         // UI read
         initScrollView = findViewById(R.id.init_scroll_view);
         initTextView = findViewById(R.id.init_text_view);
+
+        RecyclerView inventoryRecyclerView = findViewById(R.id.inventory_recycler_view);
+
+        if (inventoryRecyclerView != null) {
+            inventoryRecyclerView.setHasFixedSize(true);
+
+            inventoryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+            inventoryTagsListAdapter = new InventoryTagsListAdapter(new InventoryTagsListAdapter.OnTagClickListener() {
+                @Override
+                public void onTagClick(final Tag tag) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            selectedTag = tag;
+                        }
+                    });
+                }
+            });
+            inventoryRecyclerView.setAdapter(inventoryTagsListAdapter);
+        }
 
         readScrollView = findViewById(R.id.read_scroll_view);
         readTextView = findViewById(R.id.read_text_view);
@@ -1122,8 +1179,6 @@ public class DeviceActivityPassive extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(bleReceiver);
         unbindService(bleServiceConnection);
         bleServicePassive = null;
-
-//        serverSocketThread = null;
     }
 
     @Override

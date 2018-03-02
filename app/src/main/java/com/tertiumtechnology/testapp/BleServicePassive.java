@@ -18,8 +18,6 @@ import com.tertiumtechnology.testapp.listener.ReaderListener;
 import com.tertiumtechnology.testapp.listener.ResponseListener;
 import com.tertiumtechnology.testapp.util.Preferences;
 
-import java.util.Random;
-
 public class BleServicePassive extends Service {
     class LocalBinder extends Binder {
         BleServicePassive getService() {
@@ -203,12 +201,12 @@ public class BleServicePassive extends Service {
         }
     }
 
-    public void requestRead(Tag tag) {
+    public void requestRead(Tag tag, int address, int block) {
         if (passiveReader != null) {
-            if (tag instanceof ISO15693_tag) {
+            if (tag instanceof ISO15693_tag) {// address: 0, block: 2
                 tag.setTimeout(2000);
                 ISO15693_tag iso15693_tag = (ISO15693_tag) tag;
-                iso15693_tag.read(0, 2);
+                iso15693_tag.read(address, block);
             }
             else if (tag instanceof ISO14443A_tag) {
                 ISO14443A_tag iso14443A_tag = (ISO14443A_tag) tag;
@@ -216,9 +214,9 @@ public class BleServicePassive extends Service {
                 responseListener.readEvent(iso14443A_tag.getID(), AbstractResponseListener
                         .READER_DRIVER_UNKNOW_COMMAND_ERROR, null);
             }
-            else if (tag instanceof EPC_tag) {
+            else if (tag instanceof EPC_tag) {// address: 8, block: 4
                 EPC_tag epc_tag = (EPC_tag) tag;
-                epc_tag.read(8, 4, null);
+                epc_tag.read(address, block, null);
             }
         }
     }
@@ -295,23 +293,23 @@ public class BleServicePassive extends Service {
         }
     }
 
-    public void requestWrite(Tag tag) {
+    public void requestWrite(Tag tag, int address, String hexData) {
+
         if (passiveReader != null) {
 
-            byte data[] = new byte[8];
-//            data[0] = 0x01;
-//            data[1] = 0x02;
-//            data[2] = 0x04;
-//            data[3] = 0x08;
-//            data[4] = 0x10;
-//            data[5] = 0x20;
-//            data[6] = 0x40;
-            new Random().nextBytes(data);
-            data[7] = (byte) 0x80;
+            byte[] data = null;
 
-            if (tag instanceof ISO15693_tag) {
+            try {
+                data = hexStringToByte(hexData);
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                responseListener.writeEvent(tag.getID(), AbstractResponseListener
+                        .READER_DRIVER_COMMAND_WRONG_PARAMETER_ERROR);
+                return;
+            }
+
+            if (tag instanceof ISO15693_tag) {// address: 0
                 ISO15693_tag iso15693_tag = (ISO15693_tag) tag;
-                iso15693_tag.write(0, data);
+                iso15693_tag.write(address, data);
             }
             else if (tag instanceof ISO14443A_tag) {
                 ISO14443A_tag iso14443A_tag = (ISO14443A_tag) tag;
@@ -319,9 +317,9 @@ public class BleServicePassive extends Service {
                 responseListener.writeEvent(iso14443A_tag.getID(), AbstractResponseListener
                         .READER_DRIVER_UNKNOW_COMMAND_ERROR);
             }
-            else if (tag instanceof EPC_tag) {
+            else if (tag instanceof EPC_tag) {// address: 8
                 EPC_tag epc_tag = (EPC_tag) tag;
-                epc_tag.write(8, data, null);
+                epc_tag.write(address, data, null);
             }
         }
     }
@@ -347,5 +345,16 @@ public class BleServicePassive extends Service {
             ID[15] = 0x0F;
             epc_tag.writeID(ID, (short) (0x0000));
         }
+    }
+
+    private byte[] hexStringToByte(String hexData) throws IndexOutOfBoundsException, NumberFormatException {
+        byte[] data = new byte[hexData.length() / 2];
+
+        for (int i = 0; i < data.length; i++) {
+            String chunk = hexData.substring(i * 2, (i + 1) * 2);
+            data[i] = (byte) Integer.valueOf(chunk, 16).intValue();
+        }
+
+        return data;
     }
 }

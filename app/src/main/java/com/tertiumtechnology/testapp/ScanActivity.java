@@ -21,8 +21,8 @@ import android.widget.Toast;
 
 import com.tertiumtechnology.api.rfidpassiveapilib.scan.AbstractScanListener;
 import com.tertiumtechnology.api.rfidpassiveapilib.scan.Scanner;
-import com.tertiumtechnology.testapp.util.BleDeviceListAdapter;
 import com.tertiumtechnology.testapp.util.BleUtil;
+import com.tertiumtechnology.testapp.util.adapters.BleDeviceListAdapter;
 
 public class ScanActivity extends AppCompatActivity {
     private static final int REQUEST_COARSE_LOCATION = 2;

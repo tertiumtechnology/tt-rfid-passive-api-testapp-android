@@ -1,4 +1,4 @@
-package com.tertiumtechnology.testapp.util;
+package com.tertiumtechnology.testapp.util.adapters;
 
 import android.bluetooth.BluetoothDevice;
 import android.support.v7.widget.AppCompatTextView;

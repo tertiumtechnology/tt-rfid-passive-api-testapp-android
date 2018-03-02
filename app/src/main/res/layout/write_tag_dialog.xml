@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/focus_ll_write"
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal"/>
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/tag_write_address_text_view_title"
+        style="@style/AppTheme.TextAppearance.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
+        android:labelFor="@+id/tag_write_address"
+        android:text="@string/rw_dialog_address_tag"/>
+
+    <EditText
+        android:id="@+id/tag_write_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
+        android:inputType="number"/>
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/tag_write_data_text_view_title"
+        style="@style/AppTheme.TextAppearance.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
+        android:labelFor="@+id/tag_write_data"
+        android:text="@string/write_dialog_data_tag"/>
+
+    <EditText
+        android:id="@+id/tag_write_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
+        android:inputType="text"/>
+
+</LinearLayout>
