@@ -3,7 +3,6 @@ package com.tertiumtechnology.testapp;
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -20,7 +19,8 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.tertiumtechnology.api.rfidpassiveapilib.scan.AbstractScanListener;
-import com.tertiumtechnology.api.rfidpassiveapilib.scan.Scanner;
+import com.tertiumtechnology.api.rfidpassiveapilib.scan.BleDevice;
+import com.tertiumtechnology.api.rfidpassiveapilib.scan.PassiveScanner;
 import com.tertiumtechnology.testapp.util.BleUtil;
 import com.tertiumtechnology.testapp.util.adapters.BleDeviceListAdapter;
 
@@ -28,7 +28,7 @@ public class ScanActivity extends AppCompatActivity {
     private static final int REQUEST_COARSE_LOCATION = 2;
     private static final int REQUEST_ENABLE_BT = 1;
     private BleDeviceListAdapter bleDeviceListAdapter;
-    private Scanner scanner;
+    private PassiveScanner scanner;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -142,12 +142,11 @@ public class ScanActivity extends AppCompatActivity {
 
         AbstractScanListener scanListener = new AbstractScanListener() {
             @Override
-            public void deviceFoundEvent(final BluetoothDevice device) {
+            public void deviceFoundEvent(final BleDevice device) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         bleDeviceListAdapter.addDevice(device);
-                        bleDeviceListAdapter.notifyDataSetChanged();
                     }
                 });
             }
@@ -163,7 +162,7 @@ public class ScanActivity extends AppCompatActivity {
             }
         };
 
-        scanner = new Scanner(bluetoothAdapter, scanListener);
+        scanner = new PassiveScanner(bluetoothAdapter, scanListener);
 
         RecyclerView recyclerView = findViewById(R.id.device_recycler_view);
 
@@ -175,7 +174,7 @@ public class ScanActivity extends AppCompatActivity {
             BleDeviceListAdapter.OnDeviceClickListener onDeviceClickListener = new BleDeviceListAdapter
                     .OnDeviceClickListener() {
                 @Override
-                public void onDeviceClick(final BluetoothDevice device) {
+                public void onDeviceClick(final BleDevice device) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -186,6 +185,7 @@ public class ScanActivity extends AppCompatActivity {
                             if (scanner.isScanning()) {
                                 scanner.stopScan();
                             }
+
                             startActivity(intent);
                         }
                     });

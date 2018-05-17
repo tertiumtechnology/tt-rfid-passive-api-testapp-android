@@ -54,16 +54,15 @@ public class InventoryTagsListAdapter extends RecyclerView.Adapter<InventoryTags
     public void addTag(Tag tag) {
         if (!tags.contains(tag)) {
             tags.add(tag);
-            notifyDataSetChanged();
+            notifyItemInserted(tags.size() - 1);
         }
     }
 
     public void clear() {
+        int size = tags.size();
         tags.clear();
-
         tagSelected = -1;
-
-        notifyDataSetChanged();
+        notifyItemRangeRemoved(0, size);
     }
 
     @Override
