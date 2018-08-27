@@ -22,7 +22,7 @@
         android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
         android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
         android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
-        android:labelFor="@+id/tag_write_address"
+        android:labelFor="@id/tag_write_address"
         android:text="@string/rw_dialog_address_tag"/>
 
     <EditText
@@ -44,7 +44,7 @@
         android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
         android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
         android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
-        android:labelFor="@+id/tag_write_data"
+        android:labelFor="@id/tag_write_data"
         android:text="@string/write_dialog_data_tag"/>
 
     <EditText
@@ -56,5 +56,29 @@
         android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
         android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
         android:inputType="text"/>
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/tag_write_password_text_view_title"
+        style="@style/AppTheme.TextAppearance.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
+        android:labelFor="@id/tag_write_password"
+        android:text="@string/dialog_password"
+        android:visibility="gone"/>
+
+    <EditText
+        android:id="@+id/tag_write_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
+        android:inputType="text"
+        android:visibility="gone"/>
 
 </LinearLayout>

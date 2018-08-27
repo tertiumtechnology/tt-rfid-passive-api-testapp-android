@@ -119,17 +119,22 @@ public class ResponseListener extends AbstractResponseListener {
         }
 
         sendCommandCallbackResult(commandValueMap);
-
     }
 
     @Override
     public void writePasswordEvent(byte[] tag_ID, int error) {
+        HashMap<Object, Object> commandValueMap = initCommandValueMap(AbstractResponseListener
+                .WRITEACCESSPASSWORD_COMMAND);
+
         if (error != AbstractResponseListener.NO_ERROR) {
             logResponse("Tag #" + extractStringFromByteArray(tag_ID) + " write-password error: " + error);
+            commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_ERROR, error);
         }
         else {
             logResponse("Tag #" + extractStringFromByteArray(tag_ID) + " password written");
         }
+
+        sendCommandCallbackResult(commandValueMap);
     }
 
     @NonNull

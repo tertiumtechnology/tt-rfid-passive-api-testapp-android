@@ -41,7 +41,12 @@ import com.tertiumtechnology.api.rfidpassiveapilib.listener.AbstractResponseList
 import com.tertiumtechnology.testapp.util.BleUtil;
 import com.tertiumtechnology.testapp.util.Chain;
 import com.tertiumtechnology.testapp.util.adapters.InventoryTagsListAdapter;
+import com.tertiumtechnology.testapp.util.dialogs.KillTagDialogFragment;
+import com.tertiumtechnology.testapp.util.dialogs.LockTagDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.ReadTagDialogFragment;
+import com.tertiumtechnology.testapp.util.dialogs.ReadTidDialogFragment;
+import com.tertiumtechnology.testapp.util.dialogs.WriteAccessPasswordDialogFragment;
+import com.tertiumtechnology.testapp.util.dialogs.WriteKillPasswordDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteTagDialogFragment;
 
 import java.util.ArrayList;
@@ -50,7 +55,9 @@ import java.util.Locale;
 import java.util.Map;
 
 public class DeviceActivityPassive extends AppCompatActivity implements ReadTagDialogFragment.ReadTagListener,
-        WriteTagDialogFragment.WriteTagListener {
+        WriteTagDialogFragment.WriteTagListener, ReadTidDialogFragment.ReadTidListener, LockTagDialogFragment
+                .LockTagListener, WriteAccessPasswordDialogFragment.WriteAccessPasswordListener,
+        KillTagDialogFragment.KillTagListener, WriteKillPasswordDialogFragment.WriteKillPasswordListener {
 
     interface CommandOperation {
         void execute();
@@ -222,9 +229,22 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
 
                     addTag(tag);
 
-                    composeAndAppendInputCommandMsg(getString(R.string.inventory_tag_discovered, tag.toString()),
+                    String text = tag.toString();
+                    if (tag instanceof EPC_tag) {
+                        text += " RSSI = " + ((EPC_tag) tag).getRSSI();
+                    }
+
+                    composeAndAppendInputCommandMsg(getString(R.string.inventory_tag_discovered, text),
                             getMsgColor(R.color.colorReadText));
 
+                    break;
+
+                case AbstractResponseListener.WRITEACCESSPASSWORD_COMMAND:
+                case AbstractResponseListener.WRITEKILLPASSWORD_COMMAND:
+                    if (data.get(BleServicePassive.INTENT_EXTRA_DATA_ERROR) == null) {
+                        composeAndAppendInputCommandMsg(getString(R.string.password_written),
+                                getMsgColor(R.color.colorReadText));
+                    }
                     break;
 
                 case AbstractResponseListener.READ_COMMAND:
@@ -396,6 +416,38 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
     }
 
     @Override
+    public void onKillTag(String hexPassword) {
+        if (bleServicePassive != null) {
+            if (selectedTag != null) {
+                composeAndAppendInputCommandMsg(getString(R.string.killing_tag, selectedTag.toString()),
+                        getMsgColor(R.color.colorReadText));
+                bleServicePassive.requestKill((EPC_tag) selectedTag, hexPassword);
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        }
+    }
+
+    @Override
+    public void onLockTag(int lockType, String hexPassword) {
+        if (bleServicePassive != null) {
+            if (selectedTag != null) {
+                composeAndAppendInputCommandMsg(getString(R.string.locking_tag, selectedTag.toString()),
+                        getMsgColor(R.color.colorReadText));
+                bleServicePassive.requestLock(selectedTag, lockType, hexPassword);
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_connect:
@@ -467,13 +519,60 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
     }
 
     @Override
-    public void onWriteTag(int address, String hexData) {
+    public void onReadTid(String hexPassword) {
         if (bleServicePassive != null) {
             if (selectedTag != null) {
-                composeAndAppendInputCommandMsg(getString(R.string.writing_tag, selectedTag.toString
-                                ()),
+                composeAndAppendInputCommandMsg(getString(R.string.reading_tid, selectedTag.toString()),
                         getMsgColor(R.color.colorReadText));
-                bleServicePassive.requestWrite(selectedTag, address, hexData);
+                bleServicePassive.requestReadTID((EPC_tag) selectedTag, hexPassword);
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        }
+    }
+
+    @Override
+    public void onWriteAccessPassword(String hexOldPassword, String hexNewPassword) {
+        if (bleServicePassive != null) {
+            if (selectedTag != null) {
+                composeAndAppendInputCommandMsg(getString(R.string.writing_access_password, selectedTag.toString()),
+                        getMsgColor(R.color.colorReadText));
+                bleServicePassive.requestWriteAccessPassword((EPC_tag) selectedTag, hexOldPassword, hexNewPassword);
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        }
+    }
+
+    @Override
+    public void onWriteKillPassword(String hexOldPassword, String hexNewPassword) {
+        if (bleServicePassive != null) {
+            if (selectedTag != null) {
+                composeAndAppendInputCommandMsg(getString(R.string.writing_kill_password, selectedTag.toString()),
+                        getMsgColor(R.color.colorReadText));
+                bleServicePassive.requestWriteKillPassword((EPC_tag) selectedTag, hexOldPassword, hexNewPassword);
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        }
+    }
+
+    @Override
+    public void onWriteTag(int address, String hexData, String hexPassword) {
+        if (bleServicePassive != null) {
+            if (selectedTag != null) {
+                composeAndAppendInputCommandMsg(getString(R.string.writing_tag, selectedTag.toString()), getMsgColor
+                        (R.color.colorReadText));
+                bleServicePassive.requestWrite(selectedTag, address, hexData, hexPassword);
             }
             else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
@@ -748,10 +847,34 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 }, 2000);
             }
         });
+        commandMap.put(getString(R.string.command_write_access_password), new CommandOperation() {
+            @Override
+            public void execute() {
+                if (selectedTag != null) {
+                    if (selectedTag instanceof EPC_tag) {
+                        WriteAccessPasswordDialogFragment dialog = WriteAccessPasswordDialogFragment.newInstance
+                                (selectedTag.toString());
+                        dialog.show(getSupportFragmentManager(), "WriteAccessPasswordDialogFragment");
+                    }
+                    else {
+                        composeAndAppendInputCommandMsg(getString(R.string
+                                .invalid_command_no_epc_for_writing_access_password), getMsgColor(R.color
+                                .colorErrorText));
+                        allowSendCommand();
+                    }
+                }
+                else {
+                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                            getMsgColor(R.color.colorErrorText));
+                    allowSendCommand();
+                }
+            }
+        });
         commandMap.put(getString(R.string.command_read_tag), new CommandOperation() {
             @Override
             public void execute() {
                 if (selectedTag != null) {
+                    boolean requirePassword = selectedTag instanceof EPC_tag;
                     ReadTagDialogFragment dialog = ReadTagDialogFragment.newInstance(selectedTag.toString());
                     dialog.show(getSupportFragmentManager(), "ReadTagDialogFragment");
                 }
@@ -766,7 +889,9 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             @Override
             public void execute() {
                 if (selectedTag != null) {
-                    WriteTagDialogFragment dialog = WriteTagDialogFragment.newInstance(selectedTag.toString());
+                    boolean requirePassword = selectedTag instanceof EPC_tag;
+                    WriteTagDialogFragment dialog = WriteTagDialogFragment.newInstance(selectedTag.toString(),
+                            requirePassword);
                     dialog.show(getSupportFragmentManager(), "WriteTagDialogFragment");
                 }
                 else {
@@ -780,11 +905,14 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             @Override
             public void execute() {
                 if (selectedTag != null) {
-
-                    composeAndAppendInputCommandMsg(getString(R.string.locking_tag, selectedTag.toString
-                                    ()),
-                            getMsgColor(R.color.colorReadText));
-                    bleServicePassive.requestLock(selectedTag);
+                    // request password only for EPC_tag
+                    if (selectedTag instanceof EPC_tag) {
+                        LockTagDialogFragment dialog = LockTagDialogFragment.newInstance(selectedTag.toString());
+                        dialog.show(getSupportFragmentManager(), "LockTagDialogFragment");
+                    }
+                    else {
+                        onLockTag(0, null);
+                    }
                 }
                 else {
                     composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
@@ -800,10 +928,9 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 if (selectedTag != null) {
 
                     if (selectedTag instanceof EPC_tag) {
-                        composeAndAppendInputCommandMsg(getString(R.string.reading_tid, selectedTag.toString
-                                        ()),
-                                getMsgColor(R.color.colorReadText));
-                        bleServicePassive.requestReadTID((EPC_tag) selectedTag);
+                        ReadTidDialogFragment dialog = ReadTidDialogFragment.newInstance(selectedTag.toString());
+
+                        dialog.show(getSupportFragmentManager(), "ReadTidDialogFragment");
                     }
                     else {
                         composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_reading_tid),
@@ -843,15 +970,37 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             }
         });
 
+        commandMap.put(getString(R.string.command_write_kill_password), new CommandOperation() {
+            @Override
+            public void execute() {
+                if (selectedTag != null) {
+                    if (selectedTag instanceof EPC_tag) {
+                        WriteKillPasswordDialogFragment dialog = WriteKillPasswordDialogFragment.newInstance
+                                (selectedTag.toString());
+                        dialog.show(getSupportFragmentManager(), "WriteKillPasswordDialogFragment");
+                    }
+                    else {
+                        composeAndAppendInputCommandMsg(getString(R.string
+                                .invalid_command_no_epc_for_writing_kill_password), getMsgColor(R.color
+                                .colorErrorText));
+                        allowSendCommand();
+                    }
+                }
+                else {
+                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                            getMsgColor(R.color.colorErrorText));
+                    allowSendCommand();
+                }
+            }
+        });
         commandMap.put(getString(R.string.command_kill), new CommandOperation() {
             @Override
             public void execute() {
                 if (selectedTag != null) {
-
                     if (selectedTag instanceof EPC_tag) {
-                        composeAndAppendInputCommandMsg(getString(R.string.killing_tag, selectedTag.toString()),
-                                getMsgColor(R.color.colorReadText));
-                        bleServicePassive.requestKill((EPC_tag) selectedTag);
+                        KillTagDialogFragment dialog = KillTagDialogFragment.newInstance(selectedTag.toString());
+
+                        dialog.show(getSupportFragmentManager(), "KillTidDialogFragment");
                     }
                     else {
                         composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_killing),
@@ -866,7 +1015,6 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 }
             }
         });
-
     }
 
     private void initInitialCommandChain() {
@@ -1196,7 +1344,6 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
-
 
         if (bleServicePassive != null && connectionState == ConnectionState.CONNECTED) {
             if (!bleServicePassive.isDeviceConnected(deviceAddress)) {

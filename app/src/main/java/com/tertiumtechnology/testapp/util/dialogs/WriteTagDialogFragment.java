@@ -6,84 +6,29 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDialogFragment;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.Selection;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.TextWatcher;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
 import com.tertiumtechnology.testapp.R;
-
-import java.lang.ref.WeakReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.tertiumtechnology.testapp.util.dialogs.DialogUtils.HexDataTextWatcher;
 
 public class WriteTagDialogFragment extends AppCompatDialogFragment {
 
     public interface WriteTagListener {
-        void onWriteTag(int address, String hexData);
-    }
-
-    private static class HexDataTextWatcher implements TextWatcher {
-
-        private final WeakReference<EditText> weakReferenceDataText;
-
-        public HexDataTextWatcher(EditText dataText) {
-            this.weakReferenceDataText = new WeakReference<>(dataText);
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            String hexPattern = "a-fA-F0-9";
-
-            int currSelectionEnd = Selection.getSelectionEnd(s);
-            int textLength = s.length();
-
-            if (textLength > 0) {
-                StringBuilder replacement = new StringBuilder();
-                for (int i = 0; i < textLength; i++) {
-                    replacement.append(s.charAt(i));
-                }
-
-                Matcher matcher = Pattern.compile("[" + hexPattern + "]+").matcher(replacement);
-                if (!matcher.matches()) {
-                    String replaced = replacement.toString().replaceAll("[^" + hexPattern + "]+", "");
-
-                    SpannableStringBuilder spannable = new SpannableStringBuilder(replaced);
-                    TextUtils.copySpansFrom(s, 0, spannable.length(), null, spannable, 0);
-
-                    int selection = Math.max(-1, Math.min(currSelectionEnd - 1, spannable.length()));
-
-                    EditText dataText = weakReferenceDataText.get();
-
-                    if (dataText != null) {
-                        dataText.setText(spannable);
-                        dataText.setSelection(selection);
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
+        void onWriteTag(int address, String hexData, String hexPassword);
     }
 
     private static final String TAG_TITLE = "TAG_TITLE";
+    private static final String REQUIRE_PASSWORD = "REQUIRE_PASSWORD";
 
-    public static WriteTagDialogFragment newInstance(String tag) {
+    public static WriteTagDialogFragment newInstance(String tag, boolean requirePassword) {
         WriteTagDialogFragment dialog = new WriteTagDialogFragment();
 
         Bundle args = new Bundle();
         args.putString(TAG_TITLE, tag);
+        args.putBoolean(REQUIRE_PASSWORD, requirePassword);
         dialog.setArguments(args);
 
         return dialog;
@@ -115,11 +60,18 @@ public class WriteTagDialogFragment extends AppCompatDialogFragment {
         final EditText addressText = dialogView.findViewById(R.id.tag_write_address);
         final EditText dataText = dialogView.findViewById(R.id.tag_write_data);
 
-
         dataText.addTextChangedListener(new HexDataTextWatcher(dataText));
+        DialogUtils.appendAllDialogInputFilters(dataText, 16);
 
+        AppCompatTextView passwordTextView = dialogView.findViewById(R.id.tag_write_password_text_view_title);
+        final EditText passwordText = dialogView.findViewById(R.id.tag_write_password);
 
-        appendInputFilters(dataText);
+        if (getArguments().getBoolean(REQUIRE_PASSWORD)) {
+            passwordTextView.setVisibility(View.VISIBLE);
+            passwordText.setVisibility(View.VISIBLE);
+            passwordText.addTextChangedListener(new HexDataTextWatcher(passwordText));
+            DialogUtils.appendAllDialogInputFilters(passwordText, 8);
+        }
 
         builder.setView(dialogView)
                 .setTitle(getString(R.string.write_dialog_title, getArguments().getString(TAG_TITLE)))
@@ -133,27 +85,15 @@ public class WriteTagDialogFragment extends AppCompatDialogFragment {
                         } catch (NumberFormatException e) {
                         }
 
-                        listener.onWriteTag(address, dataText.getText().toString());
+                        listener.onWriteTag(address, dataText.getText().toString(), passwordText.getText().toString());
                     }
                 })
-                .setNegativeButton(R.string.rw_dialog_cancel_button, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.dialog_cancel_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 });
         return builder.create();
-    }
-
-    private void appendInputFilters(EditText dataText) {
-        InputFilter[] dataTextFilters = dataText.getFilters();
-
-        InputFilter[] newDataTextFilters = new InputFilter[dataTextFilters.length + 2];
-
-        System.arraycopy(dataTextFilters, 0, newDataTextFilters, 0, dataTextFilters.length);
-        newDataTextFilters[dataTextFilters.length] = new InputFilter.AllCaps();
-        newDataTextFilters[dataTextFilters.length + 1] = new InputFilter.LengthFilter(16);
-
-        dataText.setFilters(newDataTextFilters);
     }
 }

@@ -169,9 +169,18 @@ public class BleServicePassive extends Service {
         return passiveReader != null && passiveReader.isUHF();
     }
 
-    public void requestKill(EPC_tag epc_tag) {
+    public void requestKill(EPC_tag epc_tag, String hexPassword) {
         if (passiveReader != null) {
-            byte password[] = {0x0, 0x0, 0x0, 0x0};
+            byte[] password;
+
+            try {
+                password = hexStringToByte(hexPassword);
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                responseListener.writeEvent(epc_tag.getID(), AbstractResponseListener
+                        .READER_DRIVER_COMMAND_WRONG_PARAMETER_ERROR);
+                return;
+            }
+
             epc_tag.kill(password);
         }
     }
@@ -182,7 +191,7 @@ public class BleServicePassive extends Service {
         }
     }
 
-    public void requestLock(Tag tag) {
+    public void requestLock(Tag tag, int lockType, String hexPassword) {
         if (passiveReader != null) {
             if (tag instanceof ISO15693_tag) {
                 ISO15693_tag iso15693_tag = (ISO15693_tag) tag;
@@ -196,7 +205,18 @@ public class BleServicePassive extends Service {
             }
             else if (tag instanceof EPC_tag) {
                 EPC_tag epc_tag = (EPC_tag) tag;
-                epc_tag.lock(EPC_tag.MEMORY_NOTWRITABLE, null);
+
+                byte[] password;
+
+                try {
+                    password = hexStringToByte(hexPassword);
+                } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                    responseListener.writeEvent(tag.getID(), AbstractResponseListener
+                            .READER_DRIVER_COMMAND_WRONG_PARAMETER_ERROR);
+                    return;
+                }
+
+                epc_tag.lock(lockType, password);
             }
         }
     }
@@ -216,14 +236,24 @@ public class BleServicePassive extends Service {
             }
             else if (tag instanceof EPC_tag) {// address: 8, block: 4
                 EPC_tag epc_tag = (EPC_tag) tag;
-                epc_tag.read(address, block, null);
+                epc_tag.read(address, block);
             }
         }
     }
 
-    public void requestReadTID(EPC_tag epc_tag) {
+    public void requestReadTID(EPC_tag epc_tag, String hexPassword) {
         if (passiveReader != null) {
-            epc_tag.readTID(8, null);
+            byte[] password;
+
+            try {
+                password = hexStringToByte(hexPassword);
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                responseListener.writeEvent(epc_tag.getID(), AbstractResponseListener
+                        .READER_DRIVER_COMMAND_WRONG_PARAMETER_ERROR);
+                return;
+            }
+
+            epc_tag.readTID(8, password);
         }
     }
 
@@ -293,11 +323,11 @@ public class BleServicePassive extends Service {
         }
     }
 
-    public void requestWrite(Tag tag, int address, String hexData) {
+    public void requestWrite(Tag tag, int address, String hexData, String hexPassword) {
 
         if (passiveReader != null) {
 
-            byte[] data = null;
+            byte[] data;
 
             try {
                 data = hexStringToByte(hexData);
@@ -319,8 +349,37 @@ public class BleServicePassive extends Service {
             }
             else if (tag instanceof EPC_tag) {// address: 8
                 EPC_tag epc_tag = (EPC_tag) tag;
-                epc_tag.write(address, data, null);
+
+                byte[] password;
+
+                try {
+                    password = hexStringToByte(hexPassword);
+                } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                    responseListener.writeEvent(tag.getID(), AbstractResponseListener
+                            .READER_DRIVER_COMMAND_WRONG_PARAMETER_ERROR);
+                    return;
+                }
+
+                epc_tag.write(address, data, password);
             }
+        }
+    }
+
+    public void requestWriteAccessPassword(EPC_tag epc_tag, String hexOldPassword, String hexNewPassword) {
+        if (passiveReader != null) {
+            byte[] oldPassword;
+            byte[] newPassword;
+
+            try {
+                oldPassword = hexStringToByte(hexOldPassword);
+                newPassword = hexStringToByte(hexNewPassword);
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                responseListener.writeEvent(epc_tag.getID(), AbstractResponseListener
+                        .READER_DRIVER_COMMAND_WRONG_PARAMETER_ERROR);
+                return;
+            }
+
+            epc_tag.writeAccessPassword(newPassword, oldPassword);
         }
     }
 
@@ -344,6 +403,24 @@ public class BleServicePassive extends Service {
             ID[14] = 0x0E;
             ID[15] = 0x0F;
             epc_tag.writeID(ID, (short) (0x0000));
+        }
+    }
+
+    public void requestWriteKillPassword(EPC_tag epc_tag, String hexOldPassword, String hexNewPassword) {
+        if (passiveReader != null) {
+            byte[] oldPassword;
+            byte[] newPassword;
+
+            try {
+                oldPassword = hexStringToByte(hexOldPassword);
+                newPassword = hexStringToByte(hexNewPassword);
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                responseListener.writeEvent(epc_tag.getID(), AbstractResponseListener
+                        .READER_DRIVER_COMMAND_WRONG_PARAMETER_ERROR);
+                return;
+            }
+
+            epc_tag.writeKillPassword(newPassword, oldPassword);
         }
     }
 

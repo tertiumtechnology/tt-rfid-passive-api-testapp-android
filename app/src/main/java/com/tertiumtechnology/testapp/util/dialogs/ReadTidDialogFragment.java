@@ -11,17 +11,18 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.tertiumtechnology.testapp.R;
+import com.tertiumtechnology.testapp.util.dialogs.DialogUtils.HexDataTextWatcher;
 
-public class ReadTagDialogFragment extends AppCompatDialogFragment {
+public class ReadTidDialogFragment extends AppCompatDialogFragment {
 
-    public interface ReadTagListener {
-        void onReadTag(int address, int block);
+    public interface ReadTidListener {
+        void onReadTid(String hexPassword);
     }
 
     private static final String TAG_TITLE = "TAG_TITLE";
 
-    public static ReadTagDialogFragment newInstance(String tag) {
-        ReadTagDialogFragment dialog = new ReadTagDialogFragment();
+    public static ReadTidDialogFragment newInstance(String tag) {
+        ReadTidDialogFragment dialog = new ReadTidDialogFragment();
 
         Bundle args = new Bundle();
         args.putString(TAG_TITLE, tag);
@@ -30,17 +31,17 @@ public class ReadTagDialogFragment extends AppCompatDialogFragment {
         return dialog;
     }
 
-    private ReadTagListener listener;
+    private ReadTidListener listener;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
 
         try {
-            listener = (ReadTagListener) context;
+            listener = (ReadTidListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
-                    + " must implement ReadTagListener");
+                    + " must implement ReadTidListener");
         }
     }
 
@@ -52,29 +53,18 @@ public class ReadTagDialogFragment extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        View dialogView = inflater.inflate(R.layout.read_tag_dialog, null);
-        final EditText addressText = dialogView.findViewById(R.id.tag_read_address);
-        final EditText blockText = dialogView.findViewById(R.id.tag_read_block);
+        View dialogView = inflater.inflate(R.layout.read_tid_dialog, null);
+
+        final EditText passwordText = dialogView.findViewById(R.id.tid_read_password);
+        passwordText.addTextChangedListener(new HexDataTextWatcher(passwordText));
+        DialogUtils.appendAllDialogInputFilters(passwordText, 8);
 
         builder.setView(dialogView)
-                .setTitle(getString(R.string.read_dialog_title, getArguments().getString(TAG_TITLE)))
-                .setPositiveButton(R.string.read_dialog_read_button, new DialogInterface.OnClickListener() {
+                .setTitle(getString(R.string.read_tid_dialog_title, getArguments().getString(TAG_TITLE)))
+                .setPositiveButton(R.string.read_tid_dialog_read_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        int address = 0;
-                        int block = 0;
-
-                        try {
-                            address = Integer.parseInt(addressText.getText().toString());
-                        } catch (NumberFormatException e) {
-                        }
-
-                        try {
-                            block = Integer.parseInt(blockText.getText().toString());
-                        } catch (NumberFormatException e) {
-                        }
-
-                        listener.onReadTag(address, block);
+                        listener.onReadTid(passwordText.getText().toString());
                     }
                 })
                 .setNegativeButton(R.string.dialog_cancel_button, new DialogInterface.OnClickListener() {
