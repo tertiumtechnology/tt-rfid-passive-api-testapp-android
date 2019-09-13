@@ -224,7 +224,6 @@ public class BleServicePassive extends Service {
     public void requestRead(Tag tag, int address, int block) {
         if (passiveReader != null) {
             if (tag instanceof ISO15693_tag) {// address: 0, block: 2
-                tag.setTimeout(2000);
                 ISO15693_tag iso15693_tag = (ISO15693_tag) tag;
                 iso15693_tag.read(address, block);
             }
@@ -241,19 +240,9 @@ public class BleServicePassive extends Service {
         }
     }
 
-    public void requestReadTID(EPC_tag epc_tag, String hexPassword) {
+    public void requestReadTID(EPC_tag epc_tag) {
         if (passiveReader != null) {
-            byte[] password;
-
-            try {
-                password = hexStringToByte(hexPassword);
-            } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                responseListener.writeEvent(epc_tag.getID(), AbstractResponseListener
-                        .READER_DRIVER_COMMAND_WRONG_PARAMETER_ERROR);
-                return;
-            }
-
-            epc_tag.readTID(8, password);
+            epc_tag.readTID(8, null);
         }
     }
 

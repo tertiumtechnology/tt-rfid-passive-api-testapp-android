@@ -44,7 +44,6 @@ import com.tertiumtechnology.testapp.util.adapters.InventoryTagsListAdapter;
 import com.tertiumtechnology.testapp.util.dialogs.KillTagDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.LockTagDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.ReadTagDialogFragment;
-import com.tertiumtechnology.testapp.util.dialogs.ReadTidDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteAccessPasswordDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteKillPasswordDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteTagDialogFragment;
@@ -55,9 +54,9 @@ import java.util.Locale;
 import java.util.Map;
 
 public class DeviceActivityPassive extends AppCompatActivity implements ReadTagDialogFragment.ReadTagListener,
-        WriteTagDialogFragment.WriteTagListener, ReadTidDialogFragment.ReadTidListener, LockTagDialogFragment
-                .LockTagListener, WriteAccessPasswordDialogFragment.WriteAccessPasswordListener,
-        KillTagDialogFragment.KillTagListener, WriteKillPasswordDialogFragment.WriteKillPasswordListener {
+        WriteTagDialogFragment.WriteTagListener, LockTagDialogFragment.LockTagListener,
+        WriteAccessPasswordDialogFragment.WriteAccessPasswordListener, KillTagDialogFragment.KillTagListener,
+        WriteKillPasswordDialogFragment.WriteKillPasswordListener {
 
     interface CommandOperation {
         void execute();
@@ -519,22 +518,6 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
     }
 
     @Override
-    public void onReadTid(String hexPassword) {
-        if (bleServicePassive != null) {
-            if (selectedTag != null) {
-                composeAndAppendInputCommandMsg(getString(R.string.reading_tid, selectedTag.toString()),
-                        getMsgColor(R.color.colorReadText));
-                bleServicePassive.requestReadTID((EPC_tag) selectedTag, hexPassword);
-            }
-            else {
-                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
-                        getMsgColor(R.color.colorErrorText));
-                allowSendCommand();
-            }
-        }
-    }
-
-    @Override
     public void onWriteAccessPassword(String hexOldPassword, String hexNewPassword) {
         if (bleServicePassive != null) {
             if (selectedTag != null) {
@@ -928,9 +911,9 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 if (selectedTag != null) {
 
                     if (selectedTag instanceof EPC_tag) {
-                        ReadTidDialogFragment dialog = ReadTidDialogFragment.newInstance(selectedTag.toString());
-
-                        dialog.show(getSupportFragmentManager(), "ReadTidDialogFragment");
+                        composeAndAppendInputCommandMsg(getString(R.string.reading_tid, selectedTag.toString()),
+                                getMsgColor(R.color.colorReadText));
+                        bleServicePassive.requestReadTID((EPC_tag) selectedTag);
                     }
                     else {
                         composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_reading_tid),
