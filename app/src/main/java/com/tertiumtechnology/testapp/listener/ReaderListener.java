@@ -88,7 +88,6 @@ public class ReaderListener extends AbstractReaderListener {
         commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_RF_POWER_MODE, mode);
 
         sendCommandCallback(commandValueMap);
-
     }
 
     @Override
@@ -198,11 +197,23 @@ public class ReaderListener extends AbstractReaderListener {
 
     @Override
     public void tunnelEvent(byte data[]) {
+        String strData = "";
+
         logResponse("Tag tunnel data: ");
         for (byte aData : data) {
-            logResponse(String.format("%02X", aData));
+            String charData = String.format("%02X", aData);
+            strData += charData;
+            logResponse(charData);
         }
-        logResponse("");
+
+        logResponse("Tunnel data: " + strData);
+
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .ISO15693_TUNNEL_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_ISO15693_TUNNEL_DATA, strData);
+
+        sendCommandCallback(commandValueMap);
     }
 
     private void logResponse(String response) {

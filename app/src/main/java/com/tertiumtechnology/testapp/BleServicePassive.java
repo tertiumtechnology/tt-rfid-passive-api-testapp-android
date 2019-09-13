@@ -11,6 +11,7 @@ import com.tertiumtechnology.api.rfidpassiveapilib.ISO14443A_tag;
 import com.tertiumtechnology.api.rfidpassiveapilib.ISO15693_tag;
 import com.tertiumtechnology.api.rfidpassiveapilib.PassiveReader;
 import com.tertiumtechnology.api.rfidpassiveapilib.Tag;
+import com.tertiumtechnology.api.rfidpassiveapilib.listener.AbstractReaderListener;
 import com.tertiumtechnology.api.rfidpassiveapilib.listener.AbstractResponseListener;
 import com.tertiumtechnology.api.rfidpassiveapilib.util.BleSettings;
 import com.tertiumtechnology.testapp.listener.InventoryListener;
@@ -52,6 +53,8 @@ public class BleServicePassive extends Service {
             "ISO15693_EXTENSION_FLAG_PERMANENT";
     public static final String INTENT_EXTRA_DATA_ISO15693_BITRATE_BITRATE = "ISO15693_BITRATE_BITRATE";
     public static final String INTENT_EXTRA_DATA_ISO15693_BITRATE_PERMANENT = "ISO15693_BITRATE_PERMANENT";
+    public static final String INTENT_EXTRA_DATA_ISO15693_TUNNEL_DATA = "ISO15693_TUNNEL_DATA";
+
     public static final String INTENT_EXTRA_DATA_EPC_FREQUENCY = "EPC_FREQUENCY";
 
     public static final String INTENT_EXTRA_DATA_INVENTORY_TAG = "INVENTORY_TAG";
@@ -61,6 +64,7 @@ public class BleServicePassive extends Service {
 
     private final IBinder localBinder = new LocalBinder();
 
+    private ReaderListener readerListener;
     private ResponseListener responseListener;
     private PassiveReader passiveReader;
 
@@ -78,7 +82,7 @@ public class BleServicePassive extends Service {
 
     public void init(BluetoothAdapter bluetoothAdapter) {
         InventoryListener inventoryListener = new InventoryListener(this);
-        ReaderListener readerListener = new ReaderListener(this.getApplicationContext());
+        readerListener = new ReaderListener(this.getApplicationContext());
         responseListener = new ResponseListener(this);
         BleSettings bleSettings = Preferences.getBleSettings(this);
 
@@ -303,6 +307,38 @@ public class BleServicePassive extends Service {
     public void requestSound(int frequency, int step, int duration, int interval, int repetition) {
         if (passiveReader != null) {
             passiveReader.sound(frequency, step, duration, interval, repetition);
+        }
+    }
+
+    public void requestStartTunnel(String hexCommand, boolean encrypted, String hexEncryptedFlag) {
+
+        if (passiveReader != null) {
+            byte[] command;
+
+            try {
+                command = hexStringToByte(hexCommand);
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                readerListener.resultEvent(AbstractReaderListener.ISO15693_TUNNEL_COMMAND,
+                        AbstractReaderListener.READER_DRIVER_COMMAND_WRONG_PARAMETER_ERROR);
+                return;
+            }
+
+            if (encrypted) {
+                byte encryptedFlag;
+
+                try {
+                    encryptedFlag = hexStringToByte(hexEncryptedFlag)[0];
+                } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                    readerListener.resultEvent(AbstractReaderListener.ISO15693_ENCRYPTEDTUNNEL_COMMAND,
+                            AbstractReaderListener.READER_DRIVER_COMMAND_WRONG_PARAMETER_ERROR);
+                    return;
+                }
+
+                passiveReader.ISO15693encryptedTunnel(encryptedFlag, command);
+            }
+            else {
+                passiveReader.ISO15693tunnel(command);
+            }
         }
     }
 

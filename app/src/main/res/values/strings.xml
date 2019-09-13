@@ -86,6 +86,10 @@
     <string name="command_get_iso15693_bitrate">Get ISO15693 Bitrate (only HF)</string>
     <string name="get_iso15693_bitrate_values">ISO15693 bit-rate: rate = %1$d, permanent = %2$b</string>
 
+    <string name="command_iso15693_tunnel">Start Tunnel</string>
+    <string name="starting_iso15693_tunnel">Starting tunnel</string>
+    <string name="iso15693_tunnel_data_value">Tunnel: data = %1$s</string>
+
     <string name="command_set_epc_freq">Set EPC Frequency (only UHF)</string>
     <string name="command_get_epc_freq">Get EPC Frequency (only UHF)</string>
     <string name="get_epc_frequency_values">EPC-frequency = %1$d</string>
@@ -161,6 +165,12 @@
 
     <string name="dialog_password">Password</string>
     <string name="dialog_cancel_button">Cancel</string>
+
+    <string name="tunnel_dialog_title">Tunnel</string>
+    <string name="tunnel_dialog_tunnel_button">Start tunnel</string>
+    <string name="tunnel_dialog_command_text">Command</string>
+    <string name="tunnel_dialog_encrypted_text">Encrypted</string>
+    <string name="tunnel_dialog_encrypted_flag_text">Flag</string>
 
     <!-- command results and errors -->
     <string name="result_command_no_error">Result: command = %1$d NO error</string>

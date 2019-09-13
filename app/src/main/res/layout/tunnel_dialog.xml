@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/focus_ll_write"
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal"/>
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/tunnel_command_text_view_title"
+        style="@style/AppTheme.TextAppearance.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
+        android:labelFor="@id/tunnel_command"
+        android:text="@string/tunnel_dialog_command_text"/>
+
+    <android.support.v7.widget.AppCompatEditText
+        android:id="@+id/tunnel_command"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
+        android:inputType="text"/>
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/tunnel_encrypted_enabled_text_view_title"
+        style="@style/AppTheme.TextAppearance.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
+        android:labelFor="@id/tunnel_encrypted"
+        android:text="@string/tunnel_dialog_encrypted_text"/>
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/tunnel_encrypted"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"/>
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/tunnel_encrypted_flag_text_view_title"
+        style="@style/AppTheme.TextAppearance.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
+        android:labelFor="@id/tunnel_encrypted_flag"
+        android:text="@string/tunnel_dialog_encrypted_flag_text"/>
+
+    <android.support.v7.widget.AppCompatEditText
+        android:id="@+id/tunnel_encrypted_flag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
+        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
+        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
+        android:enabled="false"
+        android:inputType="text"/>
+</LinearLayout>

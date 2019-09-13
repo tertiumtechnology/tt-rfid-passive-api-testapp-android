@@ -44,6 +44,7 @@ import com.tertiumtechnology.testapp.util.adapters.InventoryTagsListAdapter;
 import com.tertiumtechnology.testapp.util.dialogs.KillTagDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.LockTagDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.ReadTagDialogFragment;
+import com.tertiumtechnology.testapp.util.dialogs.TunnelDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteAccessPasswordDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteKillPasswordDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteTagDialogFragment;
@@ -56,7 +57,7 @@ import java.util.Map;
 public class DeviceActivityPassive extends AppCompatActivity implements ReadTagDialogFragment.ReadTagListener,
         WriteTagDialogFragment.WriteTagListener, LockTagDialogFragment.LockTagListener,
         WriteAccessPasswordDialogFragment.WriteAccessPasswordListener, KillTagDialogFragment.KillTagListener,
-        WriteKillPasswordDialogFragment.WriteKillPasswordListener {
+        WriteKillPasswordDialogFragment.WriteKillPasswordListener, TunnelDialogFragment.TunnelListener {
 
     interface CommandOperation {
         void execute();
@@ -212,6 +213,14 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
 
                     composeAndAppendInputCommandMsg(getString(R.string.get_iso15693_bitrate_values, bitrate,
                             permanentBitrate),
+                            getMsgColor(R.color.colorReadText));
+                    break;
+                case AbstractReaderListener.ISO15693_TUNNEL_COMMAND:
+                case AbstractReaderListener.ISO15693_ENCRYPTEDTUNNEL_COMMAND:
+                    String tunnelData = (String) data.get(BleServicePassive
+                            .INTENT_EXTRA_DATA_ISO15693_TUNNEL_DATA);
+
+                    composeAndAppendInputCommandMsg(getString(R.string.iso15693_tunnel_data_value, tunnelData),
                             getMsgColor(R.color.colorReadText));
                     break;
 
@@ -518,6 +527,15 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
     }
 
     @Override
+    public void onStartTunnel(String hexCommand, boolean encrypted, String hexEncryptedFlag) {
+        if (bleServicePassive != null) {
+            composeAndAppendInputCommandMsg(getString(R.string.starting_iso15693_tunnel),
+                    getMsgColor(R.color.colorReadText));
+            bleServicePassive.requestStartTunnel(hexCommand, encrypted, hexEncryptedFlag);
+        }
+    }
+
+    @Override
     public void onWriteAccessPassword(String hexOldPassword, String hexNewPassword) {
         if (bleServicePassive != null) {
             if (selectedTag != null) {
@@ -801,6 +819,13 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             getMsgColor(R.color.colorErrorText));
                     allowSendCommand();
                 }
+            }
+        });
+        commandMap.put(getString(R.string.command_iso15693_tunnel), new CommandOperation() {
+            @Override
+            public void execute() {
+                TunnelDialogFragment dialog = TunnelDialogFragment.newInstance();
+                dialog.show(getSupportFragmentManager(), "TunnelDialogFragment");
             }
         });
         commandMap.put(getString(R.string.command_set_inventory_mode_scan_on_input), new CommandOperation() {
