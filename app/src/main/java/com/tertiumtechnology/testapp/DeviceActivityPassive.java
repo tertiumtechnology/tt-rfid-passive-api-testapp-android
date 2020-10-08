@@ -231,6 +231,13 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                     composeAndAppendInputCommandMsg(getString(R.string.get_epc_frequency_values, frequency),
                             getMsgColor(R.color.colorReadText));
                     break;
+                case AbstractReaderListener.GET_SECURITY_LEVEL_COMMAND:
+                    int securityLevel = (int) data.get(BleServicePassive
+                            .INTENT_EXTRA_DATA_SECURITY_LEVEL);
+
+                    composeAndAppendInputCommandMsg(getString(R.string.get_security_level_values, securityLevel),
+                            getMsgColor(R.color.colorReadText));
+                    break;
                 case AbstractReaderListener.INVENTORY_COMMAND:
                     Tag tag = (Tag) data.get(BleServicePassive
                             .INTENT_EXTRA_DATA_INVENTORY_TAG);
@@ -821,6 +828,30 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 }
             }
         });
+        commandMap.put(getString(R.string.command_get_security_level), new CommandOperation() {
+            @Override
+            public void execute() {
+                bleServicePassive.requestGetSecurityLevel();
+            }
+        });
+        commandMap.put(getString(R.string.command_set_security_level_0), new CommandOperation() {
+            @Override
+            public void execute() {
+                bleServicePassive.requestSetSecurityLevel(0);
+            }
+        });
+        commandMap.put(getString(R.string.command_set_security_level_1), new CommandOperation() {
+            @Override
+            public void execute() {
+                bleServicePassive.requestSetSecurityLevel(1);
+            }
+        });
+        commandMap.put(getString(R.string.command_set_security_level_2), new CommandOperation() {
+            @Override
+            public void execute() {
+                bleServicePassive.requestSetSecurityLevel(2);
+            }
+        });
         commandMap.put(getString(R.string.command_iso15693_tunnel), new CommandOperation() {
             @Override
             public void execute() {
@@ -1166,6 +1197,9 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         repeatingCommandCodes = new ArrayList<>();
         repeatingCommandCodes.add(AbstractReaderListener.GET_BATTERY_STATUS_COMMAND);
         repeatingCommandCodes.add(AbstractReaderListener.GET_BATTERY_LEVEL_COMMAND);
+
+//        repeatingCommandChain = new Chain(new Handler(), false);
+//        repeatingCommandCodes = new ArrayList<>();
     }
 
     private void startInitalOperations() {

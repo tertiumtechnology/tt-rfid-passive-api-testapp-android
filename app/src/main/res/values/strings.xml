@@ -94,6 +94,13 @@
     <string name="command_get_epc_freq">Get EPC Frequency (only UHF)</string>
     <string name="get_epc_frequency_values">EPC-frequency = %1$d</string>
 
+    <string name="command_get_security_level">Get Security Level</string>
+    <string name="get_security_level_values">Security level: level = %1$d</string>
+
+    <string name="command_set_security_level_0">Set Security Level: NONE</string>
+    <string name="command_set_security_level_1">Set Security Level: LEGACY</string>
+    <string name="command_set_security_level_2">Set Security Level: LESC</string>
+
     <string name="command_set_inventory_mode_scan_on_input">Set Scan On Input</string>
     <string name="command_set_inventory_mode_normal">Set Normal Scan</string>
 

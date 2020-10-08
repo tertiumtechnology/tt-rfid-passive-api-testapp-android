@@ -54,6 +54,7 @@ public class BleServicePassive extends Service {
     public static final String INTENT_EXTRA_DATA_ISO15693_BITRATE_BITRATE = "ISO15693_BITRATE_BITRATE";
     public static final String INTENT_EXTRA_DATA_ISO15693_BITRATE_PERMANENT = "ISO15693_BITRATE_PERMANENT";
     public static final String INTENT_EXTRA_DATA_ISO15693_TUNNEL_DATA = "ISO15693_TUNNEL_DATA";
+    public static final String INTENT_EXTRA_DATA_SECURITY_LEVEL = "SECURITY_LEVEL";
 
     public static final String INTENT_EXTRA_DATA_EPC_FREQUENCY = "EPC_FREQUENCY";
 
@@ -162,6 +163,12 @@ public class BleServicePassive extends Service {
     public void requestGetShutdownTime() {
         if (passiveReader != null) {
             passiveReader.getShutdownTime();
+        }
+    }
+
+    public void requestGetSecurityLevel() {
+        if (passiveReader != null) {
+            passiveReader.getSecurityLevel();
         }
     }
 
@@ -295,6 +302,12 @@ public class BleServicePassive extends Service {
     public void requestSetRFpower(int level, int mode) {
         if (passiveReader != null) {
             passiveReader.setRFpower(level, mode);
+        }
+    }
+
+    public void requestSetSecurityLevel(int level) {
+        if (passiveReader != null) {
+            passiveReader.setSecurityLevel(level);
         }
     }
 

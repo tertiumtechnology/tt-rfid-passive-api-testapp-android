@@ -184,6 +184,18 @@ public class ReaderListener extends AbstractReaderListener {
     }
 
     @Override
+    public void securityLevelEvent(int level) {
+        logResponse("Security level: level = " + level);
+
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .GET_SECURITY_LEVEL_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_SECURITY_LEVEL, level);
+
+        sendCommandCallback(commandValueMap);
+    }
+
+    @Override
     public void shutdownTimeEvent(int time) {
         logResponse("Shutdown-time = " + time + "s");
 
