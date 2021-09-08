@@ -2,8 +2,7 @@ package com.tertiumtechnology.testapp;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,6 +13,9 @@ import com.tertiumtechnology.api.rfidpassiveapilib.util.BleSettings;
 import com.tertiumtechnology.testapp.util.Preferences;
 
 import java.util.HashMap;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -160,7 +162,7 @@ public class SettingsActivity extends AppCompatActivity {
         autoIncrements = new HashMap<>();
         autoDecrements = new HashMap<>();
 
-        incrDecrHandler = new Handler();
+        incrDecrHandler = new Handler(Looper.getMainLooper());
 
         // manage bleSettings
         BleSettings currentBleSettings = Preferences.getBleSettings(this);

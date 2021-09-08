@@ -1,7 +1,5 @@
 package com.tertiumtechnology.testapp.util.adapters;
 
-import android.support.v7.widget.AppCompatTextView;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +9,9 @@ import com.tertiumtechnology.testapp.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class InventoryTagsListAdapter extends RecyclerView.Adapter<InventoryTagsListAdapter.TagViewHolder> {
 

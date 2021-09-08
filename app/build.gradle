@@ -5,14 +5,14 @@ tasks.withType(JavaCompile) {
 }
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 30
+    buildToolsVersion '30.0.0'
     defaultConfig {
         applicationId "com.tertiumtechnology.testapp"
-        minSdkVersion 18
-        targetSdkVersion 26
-        versionCode 8
-        versionName "1.9"
+        minSdkVersion 19
+        targetSdkVersion 30
+        versionCode 9
+        versionName "2.0"
     }
     buildTypes {
         release {
@@ -25,12 +25,12 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation "com.android.support:support-v4:$rootProject.ext.supportLibrayVersion"
-    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibrayVersion"
-    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibrayVersion"
-    implementation "com.android.support:cardview-v7:$rootProject.ext.supportLibrayVersion"
-    implementation "com.android.support:design:$rootProject.ext.supportLibrayVersion"
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     implementation project(':rfidpassiveapilib')
 }

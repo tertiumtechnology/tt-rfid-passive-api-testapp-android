@@ -56,6 +56,15 @@
     <string name="battery_level_value">%1$s V</string>
 
     <!-- selectable commands -->
+    <string name="category_command_select_category">Select category</string>
+    <string name="category_command_common">COMMON</string>
+    <string name="category_command_ble">BLE</string>
+    <string name="category_command_memory">MEMORY</string>
+    <string name="category_command_tertium">TERTIUM</string>
+    <string name="category_command_tag">TAG</string>
+    <string name="category_command_zhaga">ZHAGA</string>
+
+    <string name="command_select_category_first"></string>
     <string name="command_select_command">Select Operation</string>
 
     <string name="command_test_availability">Test Availability</string>
@@ -139,6 +148,136 @@
     <string name="killing_tag">Killing Tag #%1$s</string>
     <string name="tag_killed">Tag killed</string>
 
+    <!-- common command -->
+    <string name="command_get_name">Get Name</string>
+    <string name="get_name_value">Name = %1$s</string>
+
+    <string name="command_set_name">Set Name</string>
+    <string name="setting_name">Setting name %1$s</string>
+
+    <string name="command_default_ble_configuration">Default BLE configuration</string>
+
+    <!-- ble command -->
+    <string name="command_ble_firmware_version">Get BLE Firmware version</string>
+    <string name="ble_firmware_version_value">BLE Firmware-version = %1$s</string>
+
+    <string name="command_set_advertising_interval">Set advertising interval</string>
+    <string name="command_get_advertising_interval">Get advertising interval</string>
+    <string name="get_advertising_interval_value">Advertising interval = %1$d</string>
+
+    <string name="command_set_ble_power">Set BLE power</string>
+    <string name="command_get_ble_power">Get BLE power</string>
+    <string name="ble_power_value">BLE power = %1$d</string>
+
+    <string name="command_set_connection_interval">Set connection interval</string>
+    <string name="command_get_connection_interval">Get connection interval</string>
+    <string name="connection_interval_values">Connection interval: min = %1$.2f, max = %2$.2f</string>
+
+    <string name="command_set_slave_latency">Set slave latency</string>
+    <string name="command_get_slave_latency">Get slave latency</string>
+    <string name="slave_latency_value">Slave latency = %1$d</string>
+
+    <string name="command_set_supervision_timeout">Set supervision timeout</string>
+    <string name="command_get_supervision_timeout">Get supervision timeout</string>
+    <string name="supervision_timeout_value">Supervision timeout = %1$d</string>
+
+    <string name="command_get_connection_interval_and_mtu">Get connection interval and MTU</string>
+    <string name="connection_interval_and_mtu_values">Connection interval and MTU: connection interval = %1$.2f, MTU =
+        %2$d</string>
+
+    <string name="command_get_mac_address">Mac address</string>
+    <string name="mac_address_value">Mac address = %1$s</string>
+
+    <!-- memory command -->
+    <string name="command_read_user_memory_0">Read user memory block 0</string>
+    <string name="command_read_user_memory_1">Read user memory block 1</string>
+    <string name="user_memory_value">User Memory = %1$s</string>
+
+    <string name="command_write_user_memory">Write user memory </string>
+    <string name="writing_user_memory">Writing user memory: %1$s</string>
+
+    <!-- tertium command -->
+    <string name="command_reset">Reset</string>
+    <string name="command_default_setup">Default Setup</string>
+
+    <!-- zhaga command -->
+    <string name="command_reboot">Reboot</string>
+
+    <string name="command_off">Off</string>
+
+    <string name="command_set_hmi">Set HMI</string>
+    <string name="command_get_hmi_support">Get HMI support</string>
+    <string name="hmi_support_values">HMI support: led color = %1$d, sound vibration = %2$d, button number =
+        %3$d</string>
+
+    <string name="command_set_sound_for_inventory">Set sound for inventory</string>
+    <string name="command_get_sound_for_inventory">Get sound for inventory</string>
+    <string name="sound_for_inventory_values">Sound for inventory: sound frequency = %1$d, sound on time = %2$d,
+        sound off time = %3$d, sound repetition = %4$d</string>
+
+    <string name="command_set_sound_for_command">Set sound for command</string>
+    <string name="command_get_sound_for_command">Get sound for command</string>
+    <string name="sound_for_command_values">Sound for command: sound frequency = %1$d, sound on time = %2$d,
+        sound off time = %3$d, sound repetition = %4$d</string>
+
+    <string name="command_set_sound_for_error">Set sound for error</string>
+    <string name="command_get_sound_for_error">Get sound for error</string>
+    <string name="sound_for_error_values">Sound for error: sound frequency = %1$d, sound on time = %2$d,
+        sound off time = %3$d, sound repetition = %4$d</string>
+
+    <string name="command_set_led_for_inventory">Set led for inventory</string>
+    <string name="command_get_led_for_inventory">Get led for inventory</string>
+    <string name="led_for_inventory_values">Led for inventory: light color = %1$d, light on time = %2$d, light off
+        time = %3$d, light repetition = %4$d</string>
+
+    <string name="command_set_led_for_command">Set led for command</string>
+    <string name="command_get_led_for_command">Get led for command</string>
+    <string name="led_for_command_values">Led for command: light color = %1$d, light on time = %2$d, light off
+        time = %3$d, light repetition = %4$d</string>
+
+    <string name="command_set_led_for_error">Set led for error</string>
+    <string name="command_get_led_for_error">Get led for error</string>
+    <string name="led_for_error_values">Led for error: light color = %1$d, light on time = %2$d, light off
+        time = %3$d, light repetition = %4$d</string>
+
+    <string name="command_set_vibration_for_inventory">Set vibration for inventory</string>
+    <string name="command_get_vibration_for_inventory">Get vibration for inventory</string>
+    <string name="vibration_for_inventory_values">Vibration for inventory: vibration on time = %1$d,
+        vibration off time = %2$d, vibration repetition = %3$d</string>
+
+    <string name="command_set_vibration_for_command">Set vibration for command</string>
+    <string name="command_get_vibration_for_command">Get vibration for command</string>
+    <string name="vibration_for_command_values">Vibration for command: vibration on time = %1$d,
+        vibration off time = %2$d, vibration repetition = %3$d</string>
+
+    <string name="command_set_vibration_for_error">Set vibration for error</string>
+    <string name="command_get_vibration_for_error">Get vibration for error</string>
+    <string name="vibration_for_error_values">Vibration for error: vibration on time = %1$d,
+        vibration off time = %2$d, vibration repetition = %3$d</string>
+
+    <string name="command_activate_button">Activate Button</string>
+    <string name="command_get_activated_button">Get activated button</string>
+    <string name="get_activated_button_value">Activated button = %1$d</string>
+
+    <string name="command_set_rf">Set RF</string>
+    <string name="command_get_rf">Get RF</string>
+    <string name="get_rf_value">RF on = %1$b</string>
+
+    <string name="command_set_rf_on_off">Set RF on off</string>
+    <string name="command_get_rf_on_off">Get RF on off</string>
+    <string name="get_rf_on_off_values">RF on off: RF power = %1$d,
+        RF off timeout = %2$d, RF on preactivation = %3$d</string>
+
+    <string name="command_set_auto_off">Set auto off</string>
+    <string name="command_get_auto_off">Get auto off</string>
+    <string name="get_auto_off_value">Auto off time = %1$d</string>
+
+    <string name="command_default_configuration">Default configuration</string>
+
+    <string name="command_transparent">Transparent</string>
+    <string name="writing_transparent_command">Writing transparent command: %1$s</string>
+    <string name="transparent_value">Transparent = %1$s</string>
+
     <!-- read tag commands spec-->
     <string name="read_dialog_title">Read %1$s</string>
     <string name="read_dialog_block_tag">Block</string>
@@ -179,9 +318,33 @@
     <string name="tunnel_dialog_encrypted_text">Encrypted</string>
     <string name="tunnel_dialog_encrypted_flag_text">Flag</string>
 
+    <!-- common command dialogs-->
+    <string name="set_name_dialog_title">Set device name</string>
+    <string name="set_name_dialog_name">Name</string>
+    <string name="set_name_dialog_button">Write</string>
+
+    <!-- memory command dialogs-->
+    <string name="write_user_memory_dialog_title">Write user memory</string>
+    <string name="write_user_memory_dialog_data">Data</string>
+    <string name="write_user_memory_dialog_block">Block</string>
+    <string name="write_user_memory_dialog_button">Write</string>
+
+    <!-- zhaga command dialogs-->
+    <string name="transparent_dialog_title">Write transparent command</string>
+    <string name="transparent_dialog_command">Command</string>
+    <string name="transparent_dialog_button">Write</string>
+
     <!-- command results and errors -->
     <string name="result_command_no_error">Result: command = %1$d NO error</string>
     <string name="result_command_error">Result: command = %1$d, error = %2$d</string>
+
+    <!-- events -->
+    <string name="event_button_values">Button event: button = %1$d, time = %2$d</string>
+
+    <!-- event results -->
+    <string name="result_event">Event: code = %1$d, number = %2$d</string>
+
+
 
     <string name="invalid_command_not_HF_reader">Invalid command for not HF reader</string>
     <string name="invalid_command_not_UHF_reader">Invalid command for not UHF reader</string>
@@ -194,4 +357,9 @@
     <string name="invalid_command_no_epc_for_writing_kill_password">Invalid Tag for writing kill password: no
         EPC_tag</string>
     <string name="invalid_command_no_epc_for_killing">Invalid Tag for killing: no EPC_tag</string>
+
+    <!-- common command errors -->
+    <string name="invalid_command_name_not_defined">Name not defined</string>
+
+
 </resources>

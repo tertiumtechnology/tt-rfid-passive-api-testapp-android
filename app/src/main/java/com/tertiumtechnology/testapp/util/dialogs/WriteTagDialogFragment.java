@@ -5,14 +5,15 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatDialogFragment;
-import android.support.v7.widget.AppCompatTextView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
 import com.tertiumtechnology.testapp.R;
 import com.tertiumtechnology.testapp.util.dialogs.DialogUtils.HexDataTextWatcher;
+
+import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.appcompat.widget.AppCompatTextView;
 
 public class WriteTagDialogFragment extends AppCompatDialogFragment {
 

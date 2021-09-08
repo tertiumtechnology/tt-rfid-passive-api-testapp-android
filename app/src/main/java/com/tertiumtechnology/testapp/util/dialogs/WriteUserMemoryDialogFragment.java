@@ -14,35 +14,29 @@ import com.tertiumtechnology.testapp.util.dialogs.DialogUtils.HexDataTextWatcher
 
 import androidx.appcompat.app.AppCompatDialogFragment;
 
-public class KillTagDialogFragment extends AppCompatDialogFragment {
+public class WriteUserMemoryDialogFragment extends AppCompatDialogFragment {
 
-    public interface KillTagListener {
-        void onKillTag(String hexPassword);
+    public interface WriteUserMemoryListener {
+        void onWriteUserMemory(int block, String data);
     }
 
-    private static final String TAG_TITLE = "TAG_TITLE";
-
-    public static KillTagDialogFragment newInstance(String tag) {
-        KillTagDialogFragment dialog = new KillTagDialogFragment();
-
-        Bundle args = new Bundle();
-        args.putString(TAG_TITLE, tag);
-        dialog.setArguments(args);
+    public static WriteUserMemoryDialogFragment newInstance() {
+        WriteUserMemoryDialogFragment dialog = new WriteUserMemoryDialogFragment();
 
         return dialog;
     }
 
-    private KillTagListener listener;
+    private WriteUserMemoryListener listener;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
 
         try {
-            listener = (KillTagListener) context;
+            listener = (WriteUserMemoryListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
-                    + " must implement KillTagListener");
+                    + " must implement WriteUserMemoryListener");
         }
     }
 
@@ -54,18 +48,27 @@ public class KillTagDialogFragment extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        View dialogView = inflater.inflate(R.layout.kill_tag_dialog, null);
+        View dialogView = inflater.inflate(R.layout.write_user_memory_dialog, null);
 
-        final EditText passwordText = dialogView.findViewById(R.id.kill_tag_password);
-        passwordText.addTextChangedListener(new HexDataTextWatcher(passwordText));
-        DialogUtils.appendAllDialogInputFilters(passwordText, 8);
+        final EditText dataText = dialogView.findViewById(R.id.write_user_memory_data);
+        final EditText blockText = dialogView.findViewById(R.id.write_user_memory_block);
+
+        dataText.addTextChangedListener(new HexDataTextWatcher(dataText));
 
         builder.setView(dialogView)
-                .setTitle(getString(R.string.kill_tag_dialog_title, getArguments().getString(TAG_TITLE)))
-                .setPositiveButton(R.string.kill_tag_dialog_kill_button, new DialogInterface.OnClickListener() {
+                .setTitle(getString(R.string.write_user_memory_dialog_title))
+                .setPositiveButton(R.string.write_user_memory_dialog_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        listener.onKillTag(passwordText.getText().toString());
+                        int block = 0;
+
+                        try {
+                            block = Integer.parseInt(blockText.getText().toString());
+                        } catch (NumberFormatException e) {
+                        }
+
+                        listener.onWriteUserMemory(block, dataText.getText().toString());
+
                     }
                 })
                 .setNegativeButton(R.string.dialog_cancel_button, new DialogInterface.OnClickListener() {

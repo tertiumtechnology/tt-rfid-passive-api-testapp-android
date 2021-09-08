@@ -13,7 +13,7 @@
         android:focusableInTouchMode="true"
         android:orientation="horizontal"/>
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tunnel_command_text_view_title"
         style="@style/AppTheme.TextAppearance.Label"
         android:layout_width="wrap_content"
@@ -25,7 +25,7 @@
         android:labelFor="@id/tunnel_command"
         android:text="@string/tunnel_dialog_command_text"/>
 
-    <android.support.v7.widget.AppCompatEditText
+    <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/tunnel_command"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
         android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
         android:inputType="text"/>
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tunnel_encrypted_enabled_text_view_title"
         style="@style/AppTheme.TextAppearance.Label"
         android:layout_width="wrap_content"
@@ -47,7 +47,7 @@
         android:labelFor="@id/tunnel_encrypted"
         android:text="@string/tunnel_dialog_encrypted_text"/>
 
-    <android.support.v7.widget.AppCompatCheckBox
+    <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/tunnel_encrypted"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
         android:layout_marginStart="18dp"
         android:layout_marginTop="@dimen/dialogs_text_vertical_margin"/>
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tunnel_encrypted_flag_text_view_title"
         style="@style/AppTheme.TextAppearance.Label"
         android:layout_width="wrap_content"
@@ -68,7 +68,7 @@
         android:labelFor="@id/tunnel_encrypted_flag"
         android:text="@string/tunnel_dialog_encrypted_flag_text"/>
 
-    <android.support.v7.widget.AppCompatEditText
+    <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/tunnel_encrypted_flag"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

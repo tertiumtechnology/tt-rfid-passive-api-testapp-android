@@ -13,7 +13,7 @@
         android:focusableInTouchMode="true"
         android:orientation="horizontal"/>
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/lock_tag_password_text_view_title"
         style="@style/AppTheme.TextAppearance.Label"
         android:layout_width="wrap_content"
@@ -36,7 +36,7 @@
         android:inputType="text"/>
 
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/lock_tag_type_text_view_title"
         style="@style/AppTheme.TextAppearance.Label"
         android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
         android:labelFor="@id/lock_tag_type_spinner"
         android:text="@string/lock_tag_dialog_lock_type"/>
 
-    <android.support.v7.widget.AppCompatSpinner
+    <androidx.appcompat.widget.AppCompatSpinner
         android:id="@+id/lock_tag_type_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

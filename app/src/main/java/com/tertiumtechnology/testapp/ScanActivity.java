@@ -1,19 +1,12 @@
 package com.tertiumtechnology.testapp;
 
-import android.Manifest;
+import android.Manifest.permission;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -24,11 +17,29 @@ import com.tertiumtechnology.api.rfidpassiveapilib.scan.PassiveScanner;
 import com.tertiumtechnology.testapp.util.BleUtil;
 import com.tertiumtechnology.testapp.util.adapters.BleDeviceListAdapter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 public class ScanActivity extends AppCompatActivity {
-    private static final int REQUEST_COARSE_LOCATION = 2;
     private static final int REQUEST_ENABLE_BT = 1;
+    private static final int REQUEST_LOCATION = 2;
     private BleDeviceListAdapter bleDeviceListAdapter;
     private PassiveScanner scanner;
+
+    private ActivityResultLauncher<Intent> activityResultLauncher;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -59,15 +70,15 @@ public class ScanActivity extends AppCompatActivity {
 
                 boolean permissionGranted = true;
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                        &&
-                        ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission
-                                .ACCESS_COARSE_LOCATION)
-                                != PackageManager.PERMISSION_GRANTED
-                        ) {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                            REQUEST_COARSE_LOCATION);
+                List<String> permissions = new ArrayList<>(Arrays.asList(permission.ACCESS_COARSE_LOCATION,
+                        permission.ACCESS_FINE_LOCATION));
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !checkPermissions(permissions)) {
+
+                    String[] permissionsArray = new String[permissions.size()];
+                    permissionsArray = permissions.toArray(permissionsArray);
+
+                    ActivityCompat.requestPermissions(this, permissionsArray, REQUEST_LOCATION);
 
                     permissionGranted = false;
                 }
@@ -96,7 +107,7 @@ public class ScanActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[]
             grantResults) {
-        if (requestCode == REQUEST_COARSE_LOCATION) {
+        if (requestCode == REQUEST_LOCATION) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 scanner.startScan();
@@ -108,17 +119,20 @@ public class ScanActivity extends AppCompatActivity {
     private void checkForBluetoothEnabled() {
         if (!BleUtil.isBluetoothEnabled(getApplicationContext())) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+
+            activityResultLauncher.launch(enableBtIntent);
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            finish();
-            return;
+    private boolean checkPermissions(List<String> permissions) {
+        if (permissions != null) {
+            for (String permission : permissions) {
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
         }
-        super.onActivityResult(requestCode, resultCode, data);
+        return true;
     }
 
     @Override
@@ -139,6 +153,16 @@ public class ScanActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
             finish();
         }
+
+        activityResultLauncher = registerForActivityResult(new StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                            finish();
+                        }
+                    }
+                });
 
         AbstractScanListener scanListener = new AbstractScanListener() {
             @Override

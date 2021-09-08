@@ -14,7 +14,7 @@
         android:orientation="horizontal"/>
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tag_read_address_text_view_title"
+        android:id="@+id/set_name_text_view_title"
         style="@style/AppTheme.TextAppearance.Label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -22,38 +22,17 @@
         android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
         android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
         android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
-        android:labelFor="@id/tag_read_address"
-        android:text="@string/rw_dialog_address_tag"/>
+        android:labelFor="@id/set_name_value"
+        android:text="@string/set_name_dialog_name"/>
 
     <EditText
-        android:id="@+id/tag_read_address"
+        android:id="@+id/set_name_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
         android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
         android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
         android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
-        android:inputType="number"/>
+        android:inputType="text"/>
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tag_read_block_text_view_title"
-        style="@style/AppTheme.TextAppearance.Label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
-        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
-        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
-        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
-        android:labelFor="@id/tag_read_block"
-        android:text="@string/read_dialog_block_tag"/>
-
-    <EditText
-        android:id="@+id/tag_read_block"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/dialogs_text_vertical_margin"
-        android:layout_marginEnd="@dimen/dialogs_text_horizontal_margin"
-        android:layout_marginStart="@dimen/dialogs_text_horizontal_margin"
-        android:layout_marginTop="@dimen/dialogs_text_vertical_margin"
-        android:inputType="number"/>
 </LinearLayout>

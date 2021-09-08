@@ -2,8 +2,6 @@ package com.tertiumtechnology.testapp.listener;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.tertiumtechnology.api.rfidpassiveapilib.listener.AbstractResponseListener;
@@ -12,6 +10,9 @@ import com.tertiumtechnology.testapp.BleServicePassive;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class ResponseListener extends AbstractResponseListener {
     private static final String TAG = ResponseListener.class.getSimpleName();

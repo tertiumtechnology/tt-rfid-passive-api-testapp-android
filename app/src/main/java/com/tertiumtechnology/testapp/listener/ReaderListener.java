@@ -2,7 +2,6 @@ package com.tertiumtechnology.testapp.listener;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.tertiumtechnology.api.rfidpassiveapilib.listener.AbstractReaderListener;
@@ -12,6 +11,9 @@ import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 public class ReaderListener extends AbstractReaderListener {
     private static final String TAG = ReaderListener.class.getSimpleName();
 
@@ -19,6 +21,30 @@ public class ReaderListener extends AbstractReaderListener {
 
     public ReaderListener(Context service) {
         this.weakReferenceContext = new WeakReference<>(service);
+    }
+
+    @Override
+    public void BLEfirmwareVersionEvent(int major, int minor) {
+        logResponse("BLE firmware version: major = " + major + " minor = " + minor);
+
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .GET_BLE_FIRMWARE_VERSION_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_BLE_FIRMWARE_VERSION, major + "." + minor);
+
+        sendCommandCallback(commandValueMap);
+    }
+
+    @Override
+    public void BLEpowerEvent(int BLE_power) {
+        logResponse("BLE power = " + BLE_power);
+
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .GET_BLE_POWER_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_BLE_POWER, BLE_power);
+
+        sendCommandCallback(commandValueMap);
     }
 
     @Override
@@ -73,6 +99,20 @@ public class ReaderListener extends AbstractReaderListener {
     }
 
     @Override
+    public void MACaddressEvent(byte[] MAC_address) {
+        String macAddress = extractStringFromByteArray(MAC_address);
+
+        logResponse("MAC address = " + macAddress);
+
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .GET_MAC_ADDRESS_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_MAC_ADDRESS, macAddress);
+
+        sendCommandCallback(commandValueMap);
+    }
+
+    @Override
     public void RFforISO15693tunnelEvent(int delay, int timeout) {
         logResponse("RF-ISO15693-tunnel: delay = " + delay + "s timoeut = " + timeout + "ms");
     }
@@ -86,6 +126,18 @@ public class ReaderListener extends AbstractReaderListener {
                 .GET_RF_POWER_COMMAND);
         commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_RF_POWER_LEVEL, level);
         commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_RF_POWER_MODE, mode);
+
+        sendCommandCallback(commandValueMap);
+    }
+
+    @Override
+    public void advertisingIntervalEvent(int advertising_interval) {
+        logResponse("Advertising interval = " + advertising_interval);
+
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .GET_ADVERTISING_INTERVAL_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_ADVERTISING_INTERVAL, advertising_interval);
 
         sendCommandCallback(commandValueMap);
     }
@@ -137,6 +189,32 @@ public class ReaderListener extends AbstractReaderListener {
     }
 
     @Override
+    public void connectionIntervalAndMTUevent(float connection_interval, int MTU) {
+        logResponse("Connection Interval and MTU: connection interval = " + connection_interval + " MTU = " + MTU);
+
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .GET_CONNECTION_INTERVAL_AND_MTU_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_CONNECTION_INTERVAL, connection_interval);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_MTU, MTU);
+
+        sendCommandCallback(commandValueMap);
+    }
+
+    @Override
+    public void connectionIntervalEvent(float min_interval, float max_interval) {
+        logResponse("Connection Interval: min = " + min_interval + "  max = " + max_interval);
+
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .GET_CONNECTION_INTERVAL_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_CONNECTION_INTERVAL_MIN, min_interval);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_CONNECTION_INTERVAL_MAX, max_interval);
+
+        sendCommandCallback(commandValueMap);
+    }
+
+    @Override
     public void connectionSuccessEvent() {
         logResponse("Successful connection");
         Intent intent = new Intent(BleServicePassive.INTENT_ACTION_DEVICE_CONNECTED);
@@ -160,6 +238,18 @@ public class ReaderListener extends AbstractReaderListener {
         commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
                 .GET_FIRMWARE_VERSION_COMMAND);
         commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_FIRMWARE_VERSION, major + "." + minor);
+
+        sendCommandCallback(commandValueMap);
+    }
+
+    @Override
+    public void nameEvent(String device_name) {
+        logResponse("Device name = " + device_name);
+
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .GET_DEVICE_NAME_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_DEVICE_NAME, device_name);
 
         sendCommandCallback(commandValueMap);
     }
@@ -208,15 +298,33 @@ public class ReaderListener extends AbstractReaderListener {
     }
 
     @Override
-    public void tunnelEvent(byte data[]) {
-        String strData = "";
+    public void slaveLatencyEvent(int slave_latency) {
+        logResponse("Slave latency = " + slave_latency);
 
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .GET_SLAVE_LATENCY_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_SLAVE_LATENCY, slave_latency);
+
+        sendCommandCallback(commandValueMap);
+    }
+
+    @Override
+    public void supervisionTimeoutEvent(int supervision_timeout) {
+        logResponse("Supervision Timeout = " + supervision_timeout);
+
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .GET_SUPERVISION_TIMEOUT_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_SUPERVISION_TIMEOUT, supervision_timeout);
+
+        sendCommandCallback(commandValueMap);
+    }
+
+    @Override
+    public void tunnelEvent(byte data[]) {
         logResponse("Tag tunnel data: ");
-        for (byte aData : data) {
-            String charData = String.format("%02X", aData);
-            strData += charData;
-            logResponse(charData);
-        }
+        String strData = extractStringFromByteArray(data);
 
         logResponse("Tunnel data: " + strData);
 
@@ -226,6 +334,29 @@ public class ReaderListener extends AbstractReaderListener {
         commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_ISO15693_TUNNEL_DATA, strData);
 
         sendCommandCallback(commandValueMap);
+    }
+
+    @Override
+    public void userMemoryEvent(byte[] data_block) {
+        String strData = extractStringFromByteArray(data_block);
+
+        logResponse("User Memory = " + strData);
+
+        HashMap<Object, Object> commandValueMap = new HashMap<>();
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_CALLBACK, AbstractReaderListener
+                .READ_USER_MEMORY_COMMAND);
+        commandValueMap.put(BleServicePassive.INTENT_EXTRA_DATA_USER_MEMORY, strData);
+
+        sendCommandCallback(commandValueMap);
+    }
+
+    @NonNull
+    private String extractStringFromByteArray(byte[] data) {
+        StringBuilder value = new StringBuilder();
+        for (byte aData : data) {
+            value.append(String.format("%02X", aData));
+        }
+        return value.toString();
     }
 
     private void logResponse(String response) {

@@ -17,6 +17,7 @@ import com.tertiumtechnology.api.rfidpassiveapilib.util.BleSettings;
 import com.tertiumtechnology.testapp.listener.InventoryListener;
 import com.tertiumtechnology.testapp.listener.ReaderListener;
 import com.tertiumtechnology.testapp.listener.ResponseListener;
+import com.tertiumtechnology.testapp.listener.ZhagaListener;
 import com.tertiumtechnology.testapp.util.Preferences;
 
 public class BleServicePassive extends Service {
@@ -33,9 +34,18 @@ public class BleServicePassive extends Service {
     public static final String INTENT_ACTION_DEVICE_COMMAND_RESULT = "DEVICE_COMMAND_RESULT";
     public static final String INTENT_ACTION_DEVICE_COMMAND_CALLBACK_RESULT = "DEVICE_COMMAND_CALLBACK_RESULT";
 
+    // events
+    public static final String INTENT_ACTION_DEVICE_EVENT_TRIGGERED = "DEVICE_EVENT_TRIGGERED";
+    public static final String INTENT_ACTION_DEVICE_EVENT_RESULT = "DEVICE_EVENT_RESULT";
+
     public static final String INTENT_EXTRA_DATA_COMMAND_CALLBACK = "COMMAND_CALLBACK";
     public static final String INTENT_EXTRA_DATA_COMMAND_RESULT = "COMMAND_RESULT";
     public static final String INTENT_EXTRA_DATA_COMMAND_CALLBACK_RESULT = "COMMAND_CALLBACK_RESULT";
+
+    // events
+    public static final String INTENT_EXTRA_DATA_EVENT_TRIGGERED = "EVENT_TRIGGERED";
+    public static final String INTENT_EXTRA_DATA_EVENT_RESULT_CODE = "EVENT_RESULT_CODE";
+    public static final String INTENT_EXTRA_DATA_EVENT_RESULT_NUMBER = "EVENT_RESULT_NUMBER";
 
     public static final String INTENT_EXTRA_DATA_VALUE = "VALUE";
     public static final String INTENT_EXTRA_DATA_ERROR = "ERROR";
@@ -63,6 +73,89 @@ public class BleServicePassive extends Service {
     public static final String INTENT_EXTRA_DATA_READ_VALUE = "READ_VALUE";
     public static final String INTENT_EXTRA_DATA_READ_TID_VALUE = "READ_TID_VALUE";
 
+    // common command
+    public static final String INTENT_EXTRA_DATA_DEVICE_NAME = "DEVICE_NAME";
+
+    // ble command
+    public static final String INTENT_EXTRA_DATA_BLE_FIRMWARE_VERSION = "BLE_FIRMWARE_VERSION";
+    public static final String INTENT_EXTRA_DATA_ADVERTISING_INTERVAL = "ADVERTISING_INTERVAL";
+    public static final String INTENT_EXTRA_DATA_BLE_POWER = "BLE_POWER";
+    public static final String INTENT_EXTRA_DATA_CONNECTION_INTERVAL_MIN = "CONNECTION_INTERVAL_MIN";
+    public static final String INTENT_EXTRA_DATA_CONNECTION_INTERVAL_MAX = "CONNECTION_INTERVAL_MAX";
+    public static final String INTENT_EXTRA_DATA_SLAVE_LATENCY = "SLAVE_LATENCY";
+    public static final String INTENT_EXTRA_DATA_SUPERVISION_TIMEOUT = "SUPERVISION_TIMEOUT";
+    public static final String INTENT_EXTRA_DATA_CONNECTION_INTERVAL = "CONNECTION_INTERVAL";
+    public static final String INTENT_EXTRA_DATA_MTU = "MTU";
+    public static final String INTENT_EXTRA_DATA_MAC_ADDRESS = "MAC_ADDRESS";
+
+    // memory command
+    public static final String INTENT_EXTRA_DATA_USER_MEMORY = "USER_MEMORY";
+
+    // zhaga command
+    public static final String INTENT_EXTRA_DATA_HMI_LED_COLOR = "HMI_LED_COLOR";
+    public static final String INTENT_EXTRA_DATA_HMI_SOUND_VIBRATION = "HMI_SOUND_VIBRATION";
+    public static final String INTENT_EXTRA_DATA_HMI_BUTTON_NUMBER = "HMI_BUTTON_NUMBER";
+
+    public static final String INTENT_EXTRA_DATA_INVENTORY_SOUND_FREQUENCY = "INVENTORY_SOUND_FREQUENCY";
+    public static final String INTENT_EXTRA_DATA_INVENTORY_SOUND_ON_TIME = "INVENTORY_SOUND_ON_TIME";
+    public static final String INTENT_EXTRA_DATA_INVENTORY_SOUND_OFF_TIME = "INVENTORY_SOUND_OFF_TIME";
+    public static final String INTENT_EXTRA_DATA_INVENTORY_SOUND_REPETITION = "INVENTORY_SOUND_REPETITION";
+
+    public static final String INTENT_EXTRA_DATA_COMMAND_SOUND_FREQUENCY = "COMMAND_SOUND_FREQUENCY";
+    public static final String INTENT_EXTRA_DATA_COMMAND_SOUND_ON_TIME = "COMMAND_SOUND_ON_TIME";
+    public static final String INTENT_EXTRA_DATA_COMMAND_SOUND_OFF_TIME = "COMMAND_SOUND_OFF_TIME";
+    public static final String INTENT_EXTRA_DATA_COMMAND_SOUND_REPETITION = "COMMAND_SOUND_REPETITION";
+
+    public static final String INTENT_EXTRA_DATA_ERROR_SOUND_FREQUENCY = "ERROR_SOUND_FREQUENCY";
+    public static final String INTENT_EXTRA_DATA_ERROR_SOUND_ON_TIME = "ERROR_SOUND_ON_TIME";
+    public static final String INTENT_EXTRA_DATA_ERROR_SOUND_OFF_TIME = "ERROR_SOUND_OFF_TIME";
+    public static final String INTENT_EXTRA_DATA_ERROR_SOUND_REPETITION = "ERROR_SOUND_REPETITION";
+
+    public static final String INTENT_EXTRA_DATA_INVENTORY_LED_LIGHT_COLOR = "INVENTORY_LED_LIGHT_COLOR";
+    public static final String INTENT_EXTRA_DATA_INVENTORY_LED_LIGHT_ON_TIME = "INVENTORY_LED_LIGHT_ON_TIME";
+    public static final String INTENT_EXTRA_DATA_INVENTORY_LED_LIGHT_OFF_TIME = "INVENTORY_LED_LIGHT_OFF_TIME";
+    public static final String INTENT_EXTRA_DATA_INVENTORY_LED_LIGHT_REPETITION =
+            "INVENTORY_LED_LIGHT_REPETITION";
+
+    public static final String INTENT_EXTRA_DATA_COMMAND_LED_LIGHT_COLOR = "COMMAND_LED_LIGHT_COLOR";
+    public static final String INTENT_EXTRA_DATA_COMMAND_LED_LIGHT_ON_TIME = "COMMAND_LED_LIGHT_ON_TIME";
+    public static final String INTENT_EXTRA_DATA_COMMAND_LED_LIGHT_OFF_TIME = "COMMAND_LED_LIGHT_OFF_TIME";
+    public static final String INTENT_EXTRA_DATA_COMMAND_LED_LIGHT_REPETITION = "COMMAND_LED_LIGHT_REPETITION";
+
+    public static final String INTENT_EXTRA_DATA_ERROR_LED_LIGHT_COLOR = "ERROR_LED_LIGHT_COLOR";
+    public static final String INTENT_EXTRA_DATA_ERROR_LED_LIGHT_ON_TIME = "ERROR_LED_LIGHT_ON_TIME";
+    public static final String INTENT_EXTRA_DATA_ERROR_LED_LIGHT_OFF_TIME = "ERROR_LED_LIGHT_OFF_TIME";
+    public static final String INTENT_EXTRA_DATA_ERROR_LED_LIGHT_REPETITION = "ERROR_LED_LIGHT_REPETITION";
+
+    public static final String INTENT_EXTRA_DATA_INVENTORY_VIBRATION_ON_TIME = "INVENTORY_VIBRATION_ON_TIME";
+    public static final String INTENT_EXTRA_DATA_INVENTORY_VIBRATION_OFF_TIME = "INVENTORY_VIBRATION_OFF_TIME";
+    public static final String INTENT_EXTRA_DATA_INVENTORY_VIBRATION_REPETITION =
+            "INVENTORY_VIBRATION_REPETITION";
+
+    public static final String INTENT_EXTRA_DATA_COMMAND_VIBRATION_ON_TIME = "COMMAND_VIBRATION_ON_TIME";
+    public static final String INTENT_EXTRA_DATA_COMMAND_VIBRATION_OFF_TIME = "COMMAND_VIBRATION_OFF_TIME";
+    public static final String INTENT_EXTRA_DATA_COMMAND_VIBRATION_REPETITION = "COMMAND_VIBRATION_REPETITION";
+
+    public static final String INTENT_EXTRA_DATA_ERROR_VIBRATION_ON_TIME = "ERROR_VIBRATION_ON_TIME";
+    public static final String INTENT_EXTRA_DATA_ERROR_VIBRATION_OFF_TIME = "ERROR_VIBRATION_OFF_TIME";
+    public static final String INTENT_EXTRA_DATA_ERROR_VIBRATION_REPETITION = "ERROR_VIBRATION_REPETITION";
+
+    public static final String INTENT_EXTRA_DATA_ACTIVATED_BUTTON = "ACTIVATED_BUTTON";
+
+    public static final String INTENT_EXTRA_DATA_RF_ON = "RF_ON";
+    public static final String INTENT_EXTRA_DATA_RF_ON_OFF_RF_POWER = "RF_ON_OFF_RF_POWER";
+    public static final String INTENT_EXTRA_DATA_RF_ON_OFF_RF_OFF_TIMEOUT = "RF_ON_OFF_RF_OFF_TIMEOUT";
+    public static final String INTENT_EXTRA_DATA_RF_ON_OFF_RF_ON_PREACTIVATION = "RF_ON_OFF_RF_ON_PREACTIVATION";
+    public static final String INTENT_EXTRA_DATA_AUTO_OFF_TIME = "AUTO_OFF_TIME";
+
+    public static final String INTENT_EXTRA_DATA_TRANSPARENT_ANSWER = "TRANSPARENT_ANSWER";
+
+    // events
+    public static final String EVENT_BUTTON_EVENT = "BUTTON_EVENT";
+
+    public static final String INTENT_EXTRA_DATA_BUTTON = "BUTTON";
+    public static final String INTENT_EXTRA_DATA_TIME = "TIME";
+
     private final IBinder localBinder = new LocalBinder();
 
     private ReaderListener readerListener;
@@ -85,10 +178,12 @@ public class BleServicePassive extends Service {
         InventoryListener inventoryListener = new InventoryListener(this);
         readerListener = new ReaderListener(this.getApplicationContext());
         responseListener = new ResponseListener(this);
+        ZhagaListener zhagaListener = new ZhagaListener(this);
+
         BleSettings bleSettings = Preferences.getBleSettings(this);
 
-        passiveReader = PassiveReader.getInstance(inventoryListener, readerListener, responseListener,
-                bluetoothAdapter, bleSettings);
+        passiveReader = PassiveReader.getPassiveReaderInstance(inventoryListener, readerListener, responseListener,
+                zhagaListener, bluetoothAdapter, bleSettings);
     }
 
     public boolean isDeviceConnected(String deviceAddress) {
@@ -106,6 +201,18 @@ public class BleServicePassive extends Service {
         return super.onUnbind(intent);
     }
 
+    public void requestActivateButton(int button) {
+        if (passiveReader != null) {
+            passiveReader.activateButton(button);
+        }
+    }
+
+    public void requestBLEfirmwareVersion() {
+        if (passiveReader != null) {
+            passiveReader.getBLEfirmwareVersion();
+        }
+    }
+
     public void requestBatteryLevel() {
         if (passiveReader != null) {
             passiveReader.getBatteryLevel();
@@ -118,9 +225,63 @@ public class BleServicePassive extends Service {
         }
     }
 
+    public void requestDefaultBLEconfiguration(int mode, boolean erase_bonding) {
+        if (passiveReader != null) {
+            passiveReader.defaultBLEconfiguration(mode, erase_bonding);
+        }
+    }
+
+    public void requestDefaultConfiguration() {
+        if (passiveReader != null) {
+            passiveReader.defaultConfiguration();
+        }
+    }
+
+    public void requestDefaultSetup() {
+        if (passiveReader != null) {
+            passiveReader.defaultSetup();
+        }
+    }
+
     public void requestDoInventory() {
         if (passiveReader != null) {
             passiveReader.doInventory();
+        }
+    }
+
+    public void requestGetActivatedButton() {
+        if (passiveReader != null) {
+            passiveReader.getActivatedButton();
+        }
+    }
+
+    public void requestGetAdvertisingInterval() {
+        if (passiveReader != null) {
+            passiveReader.getAdvertisingInterval();
+        }
+    }
+
+    public void requestGetAutoOff() {
+        if (passiveReader != null) {
+            passiveReader.getAutoOff();
+        }
+    }
+
+    public void requestGetBLEpower() {
+        if (passiveReader != null) {
+            passiveReader.getBLEpower();
+        }
+    }
+
+    public void requestGetConnectionInterval() {
+        if (passiveReader != null) {
+            passiveReader.getConnectionInterval();
+        }
+    }
+
+    public void requestGetConnectionIntervalAndMtu() {
+        if (passiveReader != null) {
+            passiveReader.getConnectionIntervalAndMTU();
         }
     }
 
@@ -133,6 +294,12 @@ public class BleServicePassive extends Service {
     public void requestGetFirmwareVersion() {
         if (passiveReader != null) {
             passiveReader.getFirmwareVersion();
+        }
+    }
+
+    public void requestGetHMIsupport() {
+        if (passiveReader != null) {
+            passiveReader.getHMIsupport();
         }
     }
 
@@ -154,9 +321,57 @@ public class BleServicePassive extends Service {
         }
     }
 
+    public void requestGetLedForCommand() {
+        if (passiveReader != null) {
+            passiveReader.getLEDforCommand();
+        }
+    }
+
+    public void requestGetLedForError() {
+        if (passiveReader != null) {
+            passiveReader.getLEDforError();
+        }
+    }
+
+    public void requestGetLedForInventory() {
+        if (passiveReader != null) {
+            passiveReader.getLEDforInventory();
+        }
+    }
+
+    public void requestGetMACAddress() {
+        if (passiveReader != null) {
+            passiveReader.getMACaddress();
+        }
+    }
+
+    public void requestGetName() {
+        if (passiveReader != null) {
+            passiveReader.getName();
+        }
+    }
+
+    public void requestGetRF() {
+        if (passiveReader != null) {
+            passiveReader.getRF();
+        }
+    }
+
+    public void requestGetRFonOff() {
+        if (passiveReader != null) {
+            passiveReader.getRFonOff();
+        }
+    }
+
     public void requestGetRFpower() {
         if (passiveReader != null) {
             passiveReader.getRFpower();
+        }
+    }
+
+    public void requestGetSecurityLevel() {
+        if (passiveReader != null) {
+            passiveReader.getSecurityLevel();
         }
     }
 
@@ -166,9 +381,51 @@ public class BleServicePassive extends Service {
         }
     }
 
-    public void requestGetSecurityLevel() {
+    public void requestGetSlaveLatency() {
         if (passiveReader != null) {
-            passiveReader.getSecurityLevel();
+            passiveReader.getSlaveLatency();
+        }
+    }
+
+    public void requestGetSoundForCommand() {
+        if (passiveReader != null) {
+            passiveReader.getSoundForCommand();
+        }
+    }
+
+    public void requestGetSoundForError() {
+        if (passiveReader != null) {
+            passiveReader.getSoundForError();
+        }
+    }
+
+    public void requestGetSoundForInventory() {
+        if (passiveReader != null) {
+            passiveReader.getSoundForInventory();
+        }
+    }
+
+    public void requestGetSupervisionTimeout() {
+        if (passiveReader != null) {
+            passiveReader.getSupervisionTimeout();
+        }
+    }
+
+    public void requestGetVibrationForCommand() {
+        if (passiveReader != null) {
+            passiveReader.getVibrationForCommand();
+        }
+    }
+
+    public void requestGetVibrationForError() {
+        if (passiveReader != null) {
+            passiveReader.getVibrationForError();
+        }
+    }
+
+    public void requestGetVibrationForInventory() {
+        if (passiveReader != null) {
+            passiveReader.getVibrationForInventory();
         }
     }
 
@@ -232,6 +489,12 @@ public class BleServicePassive extends Service {
         }
     }
 
+    public void requestOff() {
+        if (passiveReader != null) {
+            passiveReader.off();
+        }
+    }
+
     public void requestRead(Tag tag, int address, int block) {
         if (passiveReader != null) {
             if (tag instanceof ISO15693_tag) {// address: 0, block: 2
@@ -257,9 +520,61 @@ public class BleServicePassive extends Service {
         }
     }
 
+    public void requestReadUserMemory(int block) {
+        if (passiveReader != null) {
+            passiveReader.readUserMemory(block);
+        }
+    }
+
+    public void requestReboot() {
+        if (passiveReader != null) {
+            passiveReader.reboot();
+        }
+    }
+
+    public void requestReset(boolean bootloader) {
+        if (passiveReader != null) {
+            passiveReader.reset(bootloader);
+        }
+    }
+
+    public void requestSetAdvertisingInterval(int interval) {
+        if (passiveReader != null) {
+            passiveReader.setAdvertisingInterval(interval);
+        }
+    }
+
+    public void requestSetAutOff(int offTime) {
+        if (passiveReader != null) {
+            passiveReader.setAutoOff(offTime);
+        }
+    }
+
+    public void requestSetBLEpower(int power) {
+        if (passiveReader != null) {
+            passiveReader.setBLEpower(power);
+        }
+    }
+
+    public void requestSetConnectionInterval(float min, float max) {
+        if (passiveReader != null) {
+            passiveReader.setConnectionInterval(min, max);
+        }
+    }
+
     public void requestSetEpcFrequency(int frequency) {
         if (passiveReader != null) {
             passiveReader.setEPCfrequency(frequency);
+        }
+    }
+
+    public void requestSetHMI(int sound_frequency, int sound_on_time, int sound_off_time, int sound_repetition,
+                              int light_color, int light_on_time, int light_off_time, int light_repetition,
+                              int vibration_on_time, int vibration_off_time, int vibration_repetition) {
+        if (passiveReader != null) {
+            passiveReader.setHMI(sound_frequency, sound_on_time, sound_off_time, sound_repetition, light_color,
+                    light_on_time, light_off_time, light_repetition, vibration_on_time, vibration_off_time,
+                    vibration_repetition);
         }
     }
 
@@ -299,6 +614,45 @@ public class BleServicePassive extends Service {
         }
     }
 
+    public void requestSetLedForCommand(int lightColor, int lightOnTime, int lightOffTime,
+                                        int lightRepetition) {
+        if (passiveReader != null) {
+            passiveReader.setLEDforCommand(lightColor, lightOnTime, lightOffTime, lightRepetition);
+        }
+    }
+
+    public void requestSetLedForError(int lightColor, int lightOnTime, int lightOffTime,
+                                      int lightRepetition) {
+        if (passiveReader != null) {
+            passiveReader.setLEDforError(lightColor, lightOnTime, lightOffTime, lightRepetition);
+        }
+    }
+
+    public void requestSetLedForInventory(int lightColor, int lightOnTime, int lightOffTime,
+                                          int lightRepetition) {
+        if (passiveReader != null) {
+            passiveReader.setLEDforInventory(lightColor, lightOnTime, lightOffTime, lightRepetition);
+        }
+    }
+
+    public void requestSetName(String device_name) {
+        if (passiveReader != null) {
+            passiveReader.setName(device_name);
+        }
+    }
+
+    public void requestSetRF(boolean rfOn) {
+        if (passiveReader != null) {
+            passiveReader.setRF(rfOn);
+        }
+    }
+
+    public void requestSetRFonOff(int rfPower, int rfOffTimeout, int rfOnPreactivation) {
+        if (passiveReader != null) {
+            passiveReader.setRFonOff(rfPower, rfOffTimeout, rfOnPreactivation);
+        }
+    }
+
     public void requestSetRFpower(int level, int mode) {
         if (passiveReader != null) {
             passiveReader.setRFpower(level, mode);
@@ -314,6 +668,58 @@ public class BleServicePassive extends Service {
     public void requestSetShutdownTime(int time) {
         if (passiveReader != null) {
             passiveReader.setShutdownTime(time);
+        }
+    }
+
+    public void requestSetSlaveLatency(int latency) {
+        if (passiveReader != null) {
+            passiveReader.setSlaveLatency(latency);
+        }
+    }
+
+    public void requestSetSoundForCommand(int soundFrequency, int soundOnTime, int soundOffTime,
+                                          int soundRepetition) {
+        if (passiveReader != null) {
+            passiveReader.setSoundForCommand(soundFrequency, soundOnTime, soundOffTime, soundRepetition);
+        }
+    }
+
+    public void requestSetSoundForError(int soundFrequency, int soundOnTime, int soundOffTime,
+                                        int soundRepetition) {
+        if (passiveReader != null) {
+            passiveReader.setSoundForError(soundFrequency, soundOnTime, soundOffTime, soundRepetition);
+        }
+    }
+
+    public void requestSetSoundForInventory(int soundFrequency, int soundOnTime, int soundOffTime,
+                                            int soundRepetition) {
+        if (passiveReader != null) {
+            passiveReader.setSoundForInventory(soundFrequency, soundOnTime, soundOffTime, soundRepetition);
+        }
+    }
+
+    public void requestSetSupervisionTimeout(int timeout) {
+        if (passiveReader != null) {
+            passiveReader.setSupervisionTimeout(timeout);
+        }
+    }
+
+    public void requestSetVibrationForCommand(int vibrationOnTime, int vibrationOffTime,
+                                              int vibrationRepetition) {
+        if (passiveReader != null) {
+            passiveReader.setVibrationForCommand(vibrationOnTime, vibrationOffTime, vibrationRepetition);
+        }
+    }
+
+    public void requestSetVibrationForError(int vibrationOnTime, int vibrationOffTime, int vibrationRepetition) {
+        if (passiveReader != null) {
+            passiveReader.setVibrationForError(vibrationOnTime, vibrationOffTime, vibrationRepetition);
+        }
+    }
+
+    public void requestSetVibrationForInventory(int vibrationOnTime, int vibrationOffTime, int vibrationRepetition) {
+        if (passiveReader != null) {
+            passiveReader.setVibrationForInventory(vibrationOnTime, vibrationOffTime, vibrationRepetition);
         }
     }
 
@@ -358,6 +764,23 @@ public class BleServicePassive extends Service {
     public void requestTestAvailability() {
         if (passiveReader != null) {
             passiveReader.testAvailability();
+        }
+    }
+
+    public void requestTransparent(String hexCommand) {
+        if (passiveReader != null) {
+
+            byte[] command;
+
+            try {
+                command = hexStringToByte(hexCommand);
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                readerListener.resultEvent(AbstractReaderListener.ZHAGA_TRANSPARENT_COMMAND, AbstractResponseListener
+                        .READER_DRIVER_UNKNOW_COMMAND_ERROR);
+                return;
+            }
+
+            passiveReader.transparent(command);
         }
     }
 
@@ -459,6 +882,23 @@ public class BleServicePassive extends Service {
             }
 
             epc_tag.writeKillPassword(newPassword, oldPassword);
+        }
+    }
+
+    public void requestWriteUserMemory(int block, String hexData) {
+        if (passiveReader != null) {
+
+            byte[] data;
+
+            try {
+                data = hexStringToByte(hexData);
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                readerListener.resultEvent(AbstractReaderListener.WRITE_USER_MEMORY_COMMAND, AbstractResponseListener
+                        .READER_DRIVER_COMMAND_WRONG_PARAMETER_ERROR);
+                return;
+            }
+
+            passiveReader.writeUserMemory(block, data);
         }
     }
 

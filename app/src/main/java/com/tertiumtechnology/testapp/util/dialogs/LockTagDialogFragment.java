@@ -5,8 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatDialogFragment;
-import android.support.v7.widget.AppCompatSpinner;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,6 +17,9 @@ import com.tertiumtechnology.testapp.R;
 import com.tertiumtechnology.testapp.util.dialogs.DialogUtils.HexDataTextWatcher;
 
 import java.util.ArrayList;
+
+import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.appcompat.widget.AppCompatSpinner;
 
 public class LockTagDialogFragment extends AppCompatDialogFragment {
 
