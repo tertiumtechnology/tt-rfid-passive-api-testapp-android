@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
+import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class ZhagaListener extends AbstractZhagaListener {
@@ -260,7 +261,7 @@ public class ZhagaListener extends AbstractZhagaListener {
 
     @Override
     public void transparentEvent(byte[] answer) {
-        String strAnswer = new String(answer);
+        String strAnswer = extractStringFromByteArray(answer);
 
         logResponse("Transparent = " + strAnswer);
 
@@ -318,6 +319,15 @@ public class ZhagaListener extends AbstractZhagaListener {
                 vibration_repetition);
 
         sendCommandCallback(commandValueMap);
+    }
+
+    @NonNull
+    private String extractStringFromByteArray(byte[] data) {
+        StringBuilder value = new StringBuilder();
+        for (byte aData : data) {
+            value.append(String.format("%02X", aData));
+        }
+        return value.toString();
     }
 
     private void logResponse(String response) {
