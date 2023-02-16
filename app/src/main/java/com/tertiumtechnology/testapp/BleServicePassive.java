@@ -846,7 +846,7 @@ public class BleServicePassive extends Service {
 
     public void requestWriteID(EPC_tag epc_tag) {
         if (passiveReader != null) {
-            byte ID[] = new byte[16];
+            byte[] ID = new byte[16];
             ID[0] = 0x00;
             ID[1] = 0x01;
             ID[2] = 0x02;

@@ -18,10 +18,10 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         void onDeviceClick(BleDevice device);
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
-        AppCompatTextView deviceAddress;
-        AppCompatTextView deviceName;
+        final AppCompatTextView deviceAddress;
+        final AppCompatTextView deviceName;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -39,17 +39,12 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
             }
             deviceAddress.setText(device.getAddress());
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onDeviceClick(device);
-                }
-            });
+            itemView.setOnClickListener(v -> listener.onDeviceClick(device));
         }
     }
 
-    private OnDeviceClickListener listener;
-    private ArrayList<BleDevice> bleDevices;
+    private final OnDeviceClickListener listener;
+    private final ArrayList<BleDevice> bleDevices;
 
     public BleDeviceListAdapter(OnDeviceClickListener listener) {
         this.bleDevices = new ArrayList<>();

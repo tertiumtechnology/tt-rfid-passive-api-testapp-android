@@ -28,6 +28,16 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatSpinner;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.tertiumtechnology.api.rfidpassiveapilib.EPC_tag;
 import com.tertiumtechnology.api.rfidpassiveapilib.PassiveReader;
 import com.tertiumtechnology.api.rfidpassiveapilib.Tag;
@@ -51,22 +61,11 @@ import com.tertiumtechnology.testapp.util.dialogs.WriteTagDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteUserMemoryDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteUserMemoryDialogFragment.WriteUserMemoryListener;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatSpinner;
-import androidx.appcompat.widget.AppCompatTextView;
-import androidx.appcompat.widget.Toolbar;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class DeviceActivityPassive extends AppCompatActivity implements ReadTagDialogFragment.ReadTagListener,
         WriteTagDialogFragment.WriteTagListener, LockTagDialogFragment.LockTagListener,
@@ -116,13 +115,14 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 connectionState = ConnectionState.DISCONNECTED;
                 supportInvalidateOptionsMenu();
 
-                composeAndAppendInputCommandMsg(intent.getStringExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE),
-                        getMsgColor(R
-                                .color.colorErrorText));
+                String stringExtra = intent.getStringExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE);
+
+                composeAndAppendInputCommandMsg(stringExtra, getMsgColor(R.color.colorErrorText));
             }
             else if (BleServicePassive.INTENT_ACTION_DEVICE_COMMAND_CALLBACK
                     .equals(intent.getAction())) {
-                Map dataRead = (Map) intent.getSerializableExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE);
+
+                Map<Object, Object> dataRead = getDataMap(intent);
 
                 if (dataRead != null) {
                     int command = (int) dataRead.get(BleServicePassive
@@ -133,7 +133,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             }
             else if (BleServicePassive.INTENT_ACTION_DEVICE_COMMAND_RESULT
                     .equals(intent.getAction())) {
-                Map dataRead = (Map) intent.getSerializableExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE);
+                Map<Object, Object> dataRead = getDataMap(intent);
 
                 int commandCode = (int) dataRead.get(BleServicePassive
                         .INTENT_EXTRA_DATA_COMMAND_RESULT);
@@ -143,7 +143,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             }
             else if (BleServicePassive
                     .INTENT_ACTION_DEVICE_COMMAND_CALLBACK_RESULT.equals(intent.getAction())) {
-                Map dataRead = (Map) intent.getSerializableExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE);
+                Map<Object, Object> dataRead = getDataMap(intent);
 
                 int commandCode = (int) dataRead.get(BleServicePassive
                         .INTENT_EXTRA_DATA_COMMAND_CALLBACK_RESULT);
@@ -155,13 +155,13 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             }
             else if (BleServicePassive
                     .INTENT_ACTION_DEVICE_EVENT_RESULT.equals(intent.getAction())) {
-                Map dataRead = (Map) intent.getSerializableExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE);
+                Map<Object, Object> dataRead = getDataMap(intent);
 
                 manageEventResult(dataRead);
             }
             else if (BleServicePassive
                     .INTENT_ACTION_DEVICE_EVENT_TRIGGERED.equals(intent.getAction())) {
-                Map dataRead = (Map) intent.getSerializableExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE);
+                Map<Object, Object> dataRead = getDataMap(intent);
 
                 if (dataRead != null) {
                     String event = (String) dataRead.get(BleServicePassive.INTENT_EXTRA_DATA_EVENT_TRIGGERED);
@@ -172,6 +172,18 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             else {
                 throw new UnsupportedOperationException(getString(R.string.error_invalid_action));
             }
+        }
+
+        private Map<Object, Object> getDataMap(Intent intent) {
+            Map<Object, Object> dataRead;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                dataRead = (Map<Object, Object>) intent.getSerializableExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE, Serializable.class);
+            }
+            else{
+                dataRead = (Map<Object, Object>) intent.getSerializableExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE);
+            }
+            return dataRead;
         }
 
         private void manageCommandCallback(int command, Map data) {
@@ -598,7 +610,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                     (commandCode);
 
             if (errorData != null) {
-                String errorMsg = getString(R.string.result_command_error, commandCode, (int) errorData);
+                String errorMsg = getString(R.string.result_command_error, commandCode, errorData);
 
                 if (isInitalCommand) {
                     composeAndAppendInitMsg(errorMsg, getMsgColor(R.color.colorErrorText));
@@ -807,12 +819,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         }
 
         if (menu.findItem(R.id.menu_disconnect).isVisible()) {
-            if (enableDisconnect) {
-                menu.findItem(R.id.menu_disconnect).setEnabled(true);
-            }
-            else {
-                menu.findItem(R.id.menu_disconnect).setEnabled(false);
-            }
+            menu.findItem(R.id.menu_disconnect).setEnabled(enableDisconnect);
         }
 
         return true;
@@ -970,12 +977,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
 
         initTextView.append(msg);
 
-        initScrollView.post(new Runnable() {
-            @Override
-            public void run() {
-                initScrollView.fullScroll(ScrollView.FOCUS_DOWN);
-            }
-        });
+        initScrollView.post(() -> initScrollView.fullScroll(ScrollView.FOCUS_DOWN));
     }
 
     private void disableSendCommand() {
@@ -998,13 +1000,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
     }
 
     private int getMsgColor(int colorResourceId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return getColor(colorResourceId);
-        }
-        else {
-            //noinspection deprecation
-            return getResources().getColor(colorResourceId);
-        }
+        return getColor(colorResourceId);
     }
 
     private void initCommandMap() {
@@ -1044,96 +1040,31 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         LinkedHashMap<String, CommandOperation> bleCommandMap = new LinkedHashMap<>();
         bleCommandMap.put(getString(R.string.command_select_command), null);
 
-        bleCommandMap.put(getString(R.string.command_ble_firmware_version), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestBLEfirmwareVersion();
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_ble_firmware_version), () -> bleServicePassive.requestBLEfirmwareVersion());
 
-        bleCommandMap.put(getString(R.string.command_set_advertising_interval), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetAdvertisingInterval(250);
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_set_advertising_interval), () -> bleServicePassive.requestSetAdvertisingInterval(250));
 
-        bleCommandMap.put(getString(R.string.command_get_advertising_interval), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetAdvertisingInterval();
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_get_advertising_interval), () -> bleServicePassive.requestGetAdvertisingInterval());
 
-        bleCommandMap.put(getString(R.string.command_set_ble_power), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetBLEpower(7);
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_set_ble_power), () -> bleServicePassive.requestSetBLEpower(7));
 
-        bleCommandMap.put(getString(R.string.command_get_ble_power), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetBLEpower();
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_get_ble_power), () -> bleServicePassive.requestGetBLEpower());
 
-        bleCommandMap.put(getString(R.string.command_set_connection_interval), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetConnectionInterval(15, 30);
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_set_connection_interval), () -> bleServicePassive.requestSetConnectionInterval(15, 30));
 
-        bleCommandMap.put(getString(R.string.command_get_connection_interval), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetConnectionInterval();
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_get_connection_interval), () -> bleServicePassive.requestGetConnectionInterval());
 
-        bleCommandMap.put(getString(R.string.command_set_slave_latency), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetSlaveLatency(1);
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_set_slave_latency), () -> bleServicePassive.requestSetSlaveLatency(1));
 
-        bleCommandMap.put(getString(R.string.command_get_slave_latency), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetSlaveLatency();
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_get_slave_latency), () -> bleServicePassive.requestGetSlaveLatency());
 
-        bleCommandMap.put(getString(R.string.command_set_supervision_timeout), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetSupervisionTimeout(5000);
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_set_supervision_timeout), () -> bleServicePassive.requestSetSupervisionTimeout(5000));
 
-        bleCommandMap.put(getString(R.string.command_get_supervision_timeout), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetSupervisionTimeout();
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_get_supervision_timeout), () -> bleServicePassive.requestGetSupervisionTimeout());
 
-        bleCommandMap.put(getString(R.string.command_get_connection_interval_and_mtu), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetConnectionIntervalAndMtu();
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_get_connection_interval_and_mtu), () -> bleServicePassive.requestGetConnectionIntervalAndMtu());
 
-        bleCommandMap.put(getString(R.string.command_get_mac_address), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetMACAddress();
-            }
-        });
+        bleCommandMap.put(getString(R.string.command_get_mac_address), () -> bleServicePassive.requestGetMACAddress());
 
         return bleCommandMap;
     }
@@ -1141,51 +1072,18 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
     private LinkedHashMap<String, CommandOperation> initCommandMapCommon() {
         LinkedHashMap<String, CommandOperation> commonCommandMap = new LinkedHashMap<>();
         commonCommandMap.put(getString(R.string.command_select_command), null);
-        commonCommandMap.put(getString(R.string.command_get_security_level), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetSecurityLevel();
-            }
-        });
-        commonCommandMap.put(getString(R.string.command_set_security_level_0), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetSecurityLevel(0);
-            }
-        });
-        commonCommandMap.put(getString(R.string.command_set_security_level_1), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetSecurityLevel(1);
-            }
-        });
-        commonCommandMap.put(getString(R.string.command_set_security_level_2), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetSecurityLevel(2);
-            }
+        commonCommandMap.put(getString(R.string.command_get_security_level), () -> bleServicePassive.requestGetSecurityLevel());
+        commonCommandMap.put(getString(R.string.command_set_security_level_0), () -> bleServicePassive.requestSetSecurityLevel(0));
+        commonCommandMap.put(getString(R.string.command_set_security_level_1), () -> bleServicePassive.requestSetSecurityLevel(1));
+        commonCommandMap.put(getString(R.string.command_set_security_level_2), () -> bleServicePassive.requestSetSecurityLevel(2));
+
+        commonCommandMap.put(getString(R.string.command_set_name), () -> {
+            SetNameDialogFragment dialog = SetNameDialogFragment.newInstance();
+            dialog.show(getSupportFragmentManager(), "SetNameDialogFragment");
         });
 
-        commonCommandMap.put(getString(R.string.command_set_name), new CommandOperation() {
-            @Override
-            public void execute() {
-                SetNameDialogFragment dialog = SetNameDialogFragment.newInstance();
-                dialog.show(getSupportFragmentManager(), "SetNameDialogFragment");
-            }
-        });
-
-        commonCommandMap.put(getString(R.string.command_get_name), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetName();
-            }
-        });
-        commonCommandMap.put(getString(R.string.command_default_ble_configuration), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestDefaultBLEconfiguration(1, true);
-            }
-        });
+        commonCommandMap.put(getString(R.string.command_get_name), () -> bleServicePassive.requestGetName());
+        commonCommandMap.put(getString(R.string.command_default_ble_configuration), () -> bleServicePassive.requestDefaultBLEconfiguration(1, true));
 
         return commonCommandMap;
     }
@@ -1194,25 +1092,12 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         LinkedHashMap<String, CommandOperation> memoryCommandMap = new LinkedHashMap<>();
         memoryCommandMap.put(getString(R.string.command_select_command), null);
 
-        memoryCommandMap.put(getString(R.string.command_read_user_memory_0), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestReadUserMemory(0);
-            }
-        });
-        memoryCommandMap.put(getString(R.string.command_read_user_memory_1), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestReadUserMemory(1);
-            }
-        });
+        memoryCommandMap.put(getString(R.string.command_read_user_memory_0), () -> bleServicePassive.requestReadUserMemory(0));
+        memoryCommandMap.put(getString(R.string.command_read_user_memory_1), () -> bleServicePassive.requestReadUserMemory(1));
 
-        memoryCommandMap.put(getString(R.string.command_write_user_memory), new CommandOperation() {
-            @Override
-            public void execute() {
-                WriteUserMemoryDialogFragment dialog = WriteUserMemoryDialogFragment.newInstance();
-                dialog.show(getSupportFragmentManager(), "WriteUserMemoryDialogFragment");
-            }
+        memoryCommandMap.put(getString(R.string.command_write_user_memory), () -> {
+            WriteUserMemoryDialogFragment dialog = WriteUserMemoryDialogFragment.newInstance();
+            dialog.show(getSupportFragmentManager(), "WriteUserMemoryDialogFragment");
         });
 
         return memoryCommandMap;
@@ -1222,172 +1107,148 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         LinkedHashMap<String, CommandOperation> tagCommandMap = new LinkedHashMap<>();
         tagCommandMap.put(getString(R.string.command_select_command), null);
 
-        tagCommandMap.put(getString(R.string.command_write_access_password), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (selectedTag != null) {
-                    if (selectedTag instanceof EPC_tag) {
-                        WriteAccessPasswordDialogFragment dialog = WriteAccessPasswordDialogFragment.newInstance
-                                (selectedTag.toString());
-                        dialog.show(getSupportFragmentManager(), "WriteAccessPasswordDialogFragment");
-                    }
-                    else {
-                        composeAndAppendInputCommandMsg(getString(R.string
-                                .invalid_command_no_epc_for_writing_access_password), getMsgColor(R.color
-                                .colorErrorText));
-                        allowSendCommand();
-                    }
+        tagCommandMap.put(getString(R.string.command_write_access_password), () -> {
+            if (selectedTag != null) {
+                if (selectedTag instanceof EPC_tag) {
+                    WriteAccessPasswordDialogFragment dialog = WriteAccessPasswordDialogFragment.newInstance
+                            (selectedTag.toString());
+                    dialog.show(getSupportFragmentManager(), "WriteAccessPasswordDialogFragment");
                 }
                 else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                    composeAndAppendInputCommandMsg(getString(R.string
+                            .invalid_command_no_epc_for_writing_access_password), getMsgColor(R.color
+                            .colorErrorText));
+                    allowSendCommand();
+                }
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        });
+        tagCommandMap.put(getString(R.string.command_read_tag), () -> {
+            if (selectedTag != null) {
+                ReadTagDialogFragment dialog = ReadTagDialogFragment.newInstance(selectedTag.toString());
+                dialog.show(getSupportFragmentManager(), "ReadTagDialogFragment");
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        });
+        tagCommandMap.put(getString(R.string.command_write_tag), () -> {
+            if (selectedTag != null) {
+                boolean requirePassword = selectedTag instanceof EPC_tag;
+                WriteTagDialogFragment dialog = WriteTagDialogFragment.newInstance(selectedTag.toString(),
+                        requirePassword);
+                dialog.show(getSupportFragmentManager(), "WriteTagDialogFragment");
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        });
+        tagCommandMap.put(getString(R.string.command_lock_tag), () -> {
+            if (selectedTag != null) {
+                // request password only for EPC_tag
+                if (selectedTag instanceof EPC_tag) {
+                    LockTagDialogFragment dialog = LockTagDialogFragment.newInstance(selectedTag.toString());
+                    dialog.show(getSupportFragmentManager(), "LockTagDialogFragment");
+                }
+                else {
+                    onLockTag(0, null);
+                }
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        });
+
+        tagCommandMap.put(getString(R.string.command_read_tid), () -> {
+            if (selectedTag != null) {
+
+                if (selectedTag instanceof EPC_tag) {
+                    composeAndAppendInputCommandMsg(getString(R.string.reading_tid, selectedTag.toString()),
+                            getMsgColor(R.color.colorReadText));
+                    bleServicePassive.requestReadTID((EPC_tag) selectedTag);
+                }
+                else {
+                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_reading_tid),
                             getMsgColor(R.color.colorErrorText));
                     allowSendCommand();
                 }
             }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
         });
-        tagCommandMap.put(getString(R.string.command_read_tag), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (selectedTag != null) {
-                    ReadTagDialogFragment dialog = ReadTagDialogFragment.newInstance(selectedTag.toString());
-                    dialog.show(getSupportFragmentManager(), "ReadTagDialogFragment");
+
+        tagCommandMap.put(getString(R.string.command_write_id), () -> {
+
+            if (selectedTag != null) {
+                if (selectedTag instanceof EPC_tag) {
+                    composeAndAppendInputCommandMsg(getString(R.string.writing_id, selectedTag.toString()),
+                            getMsgColor(R.color.colorReadText));
+                    bleServicePassive.requestWriteID((EPC_tag) selectedTag);
                 }
                 else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_writing_tid),
                             getMsgColor(R.color.colorErrorText));
                     allowSendCommand();
                 }
             }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
         });
-        tagCommandMap.put(getString(R.string.command_write_tag), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (selectedTag != null) {
-                    boolean requirePassword = selectedTag instanceof EPC_tag;
-                    WriteTagDialogFragment dialog = WriteTagDialogFragment.newInstance(selectedTag.toString(),
-                            requirePassword);
-                    dialog.show(getSupportFragmentManager(), "WriteTagDialogFragment");
+
+        tagCommandMap.put(getString(R.string.command_write_kill_password), () -> {
+            if (selectedTag != null) {
+                if (selectedTag instanceof EPC_tag) {
+                    WriteKillPasswordDialogFragment dialog = WriteKillPasswordDialogFragment.newInstance
+                            (selectedTag.toString());
+                    dialog.show(getSupportFragmentManager(), "WriteKillPasswordDialogFragment");
                 }
                 else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                    composeAndAppendInputCommandMsg(getString(R.string
+                            .invalid_command_no_epc_for_writing_kill_password), getMsgColor(R.color
+                            .colorErrorText));
+                    allowSendCommand();
+                }
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        });
+
+        tagCommandMap.put(getString(R.string.command_kill), () -> {
+            if (selectedTag != null) {
+                if (selectedTag instanceof EPC_tag) {
+                    KillTagDialogFragment dialog = KillTagDialogFragment.newInstance(selectedTag.toString());
+
+                    dialog.show(getSupportFragmentManager(), "KillTidDialogFragment");
+                }
+                else {
+                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_killing),
                             getMsgColor(R.color.colorErrorText));
                     allowSendCommand();
                 }
             }
-        });
-        tagCommandMap.put(getString(R.string.command_lock_tag), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (selectedTag != null) {
-                    // request password only for EPC_tag
-                    if (selectedTag instanceof EPC_tag) {
-                        LockTagDialogFragment dialog = LockTagDialogFragment.newInstance(selectedTag.toString());
-                        dialog.show(getSupportFragmentManager(), "LockTagDialogFragment");
-                    }
-                    else {
-                        onLockTag(0, null);
-                    }
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
-        });
-
-        tagCommandMap.put(getString(R.string.command_read_tid), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (selectedTag != null) {
-
-                    if (selectedTag instanceof EPC_tag) {
-                        composeAndAppendInputCommandMsg(getString(R.string.reading_tid, selectedTag.toString()),
-                                getMsgColor(R.color.colorReadText));
-                        bleServicePassive.requestReadTID((EPC_tag) selectedTag);
-                    }
-                    else {
-                        composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_reading_tid),
-                                getMsgColor(R.color.colorErrorText));
-                        allowSendCommand();
-                    }
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
-        });
-
-        tagCommandMap.put(getString(R.string.command_write_id), new CommandOperation() {
-            @Override
-            public void execute() {
-
-                if (selectedTag != null) {
-                    if (selectedTag instanceof EPC_tag) {
-                        composeAndAppendInputCommandMsg(getString(R.string.writing_id, selectedTag.toString()),
-                                getMsgColor(R.color.colorReadText));
-                        bleServicePassive.requestWriteID((EPC_tag) selectedTag);
-                    }
-                    else {
-                        composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_writing_tid),
-                                getMsgColor(R.color.colorErrorText));
-                        allowSendCommand();
-                    }
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
-        });
-
-        tagCommandMap.put(getString(R.string.command_write_kill_password), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (selectedTag != null) {
-                    if (selectedTag instanceof EPC_tag) {
-                        WriteKillPasswordDialogFragment dialog = WriteKillPasswordDialogFragment.newInstance
-                                (selectedTag.toString());
-                        dialog.show(getSupportFragmentManager(), "WriteKillPasswordDialogFragment");
-                    }
-                    else {
-                        composeAndAppendInputCommandMsg(getString(R.string
-                                .invalid_command_no_epc_for_writing_kill_password), getMsgColor(R.color
-                                .colorErrorText));
-                        allowSendCommand();
-                    }
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
-        });
-
-        tagCommandMap.put(getString(R.string.command_kill), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (selectedTag != null) {
-                    if (selectedTag instanceof EPC_tag) {
-                        KillTagDialogFragment dialog = KillTagDialogFragment.newInstance(selectedTag.toString());
-
-                        dialog.show(getSupportFragmentManager(), "KillTidDialogFragment");
-                    }
-                    else {
-                        composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_killing),
-                                getMsgColor(R.color.colorErrorText));
-                        allowSendCommand();
-                    }
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
             }
         });
         return tagCommandMap;
@@ -1397,217 +1258,124 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         LinkedHashMap<String, CommandOperation> tertiumCommandMap = new LinkedHashMap<>();
         tertiumCommandMap.put(getString(R.string.command_select_command), null);
 
-        tertiumCommandMap.put(getString(R.string.command_test_availability), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestTestAvailability();
+        tertiumCommandMap.put(getString(R.string.command_test_availability), () -> bleServicePassive.requestTestAvailability());
+        tertiumCommandMap.put(getString(R.string.command_sounds), () -> bleServicePassive.requestSound(1000, 1000, 1000, 500, 3));
+        tertiumCommandMap.put(getString(R.string.command_light), () -> bleServicePassive.requestLight(true, 500));
+        tertiumCommandMap.put(getString(R.string.command_stop_light), () -> bleServicePassive.requestLight(false, 0));
+
+        tertiumCommandMap.put(getString(R.string.command_set_shutdown_time), () -> bleServicePassive.requestSetShutdownTime(300));
+        tertiumCommandMap.put(getString(R.string.command_get_shutdown_time), () -> bleServicePassive.requestGetShutdownTime());
+        tertiumCommandMap.put(getString(R.string.command_set_rf_power), () -> {
+            if (bleServicePassive.requestIsHF()) {
+                bleServicePassive.requestSetRFpower(PassiveReader.HF_RF_FULL_POWER, PassiveReader
+                        .HF_RF_AUTOMATIC_POWER);
+            }
+            else if (bleServicePassive.requestIsUHF()) {
+                bleServicePassive.requestSetRFpower(PassiveReader.UHF_RF_POWER_0_DB, PassiveReader
+                        .UHF_RF_POWER_AUTOMATIC_MODE);
             }
         });
-        tertiumCommandMap.put(getString(R.string.command_sounds), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSound(1000, 1000, 1000, 500, 3);
+        tertiumCommandMap.put(getString(R.string.command_get_rf_power), () -> bleServicePassive.requestGetRFpower());
+        tertiumCommandMap.put(getString(R.string.command_set_iso15693_opt_bit), () -> {
+            if (bleServicePassive.requestIsHF()) {
+                bleServicePassive.requestSetISO15693optionBits(PassiveReader.ISO15693_OPTION_BITS_NONE);
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
             }
         });
-        tertiumCommandMap.put(getString(R.string.command_light), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestLight(true, 500);
+        tertiumCommandMap.put(getString(R.string.command_get_iso15693_opt_bit), () -> {
+            if (bleServicePassive.requestIsHF()) {
+                bleServicePassive.requestGetISO15693optionBits();
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
             }
         });
-        tertiumCommandMap.put(getString(R.string.command_stop_light), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestLight(false, 0);
+        tertiumCommandMap.put(getString(R.string.command_set_iso15693_ext_flag), () -> {
+            if (bleServicePassive.requestIsHF()) {
+                bleServicePassive.requestSetISO15693extensionFlag(false, false);
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        });
+        tertiumCommandMap.put(getString(R.string.command_get_iso15693_ext_flag), () -> {
+            if (bleServicePassive.requestIsHF()) {
+                bleServicePassive.requestGetISO15693extensionFlag();
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        });
+        tertiumCommandMap.put(getString(R.string.command_set_iso15693_bitrate), () -> {
+            if (bleServicePassive.requestIsHF()) {
+                bleServicePassive.requestSetISO15693bitrate(PassiveReader.ISO15693_HIGH_BITRATE, false);
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        });
+        tertiumCommandMap.put(getString(R.string.command_get_iso15693_bitrate), () -> {
+            if (bleServicePassive.requestIsHF()) {
+                bleServicePassive.requestGetISO15693bitrate();
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        });
+        tertiumCommandMap.put(getString(R.string.command_set_epc_freq), () -> {
+            if (bleServicePassive.requestIsUHF()) {
+                bleServicePassive.requestSetEpcFrequency(PassiveReader.RF_CARRIER_866_9_MHZ);
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_UHF_reader),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        });
+        tertiumCommandMap.put(getString(R.string.command_get_epc_freq), () -> {
+            if (bleServicePassive.requestIsUHF()) {
+                bleServicePassive.requestGetEpcFrequency();
+            }
+            else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_UHF_reader),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
             }
         });
 
-        tertiumCommandMap.put(getString(R.string.command_set_shutdown_time), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetShutdownTime(300);
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_get_shutdown_time), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetShutdownTime();
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_set_rf_power), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (bleServicePassive.requestIsHF()) {
-                    bleServicePassive.requestSetRFpower(PassiveReader.HF_RF_FULL_POWER, PassiveReader
-                            .HF_RF_AUTOMATIC_POWER);
-                }
-                else if (bleServicePassive.requestIsUHF()) {
-                    bleServicePassive.requestSetRFpower(PassiveReader.UHF_RF_POWER_0_DB, PassiveReader
-                            .UHF_RF_POWER_AUTOMATIC_MODE);
-                }
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_get_rf_power), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetRFpower();
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_set_iso15693_opt_bit), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (bleServicePassive.requestIsHF()) {
-                    bleServicePassive.requestSetISO15693optionBits(PassiveReader.ISO15693_OPTION_BITS_NONE);
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_get_iso15693_opt_bit), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (bleServicePassive.requestIsHF()) {
-                    bleServicePassive.requestGetISO15693optionBits();
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_set_iso15693_ext_flag), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (bleServicePassive.requestIsHF()) {
-                    bleServicePassive.requestSetISO15693extensionFlag(false, false);
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_get_iso15693_ext_flag), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (bleServicePassive.requestIsHF()) {
-                    bleServicePassive.requestGetISO15693extensionFlag();
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_set_iso15693_bitrate), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (bleServicePassive.requestIsHF()) {
-                    bleServicePassive.requestSetISO15693bitrate(PassiveReader.ISO15693_HIGH_BITRATE, false);
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_get_iso15693_bitrate), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (bleServicePassive.requestIsHF()) {
-                    bleServicePassive.requestGetISO15693bitrate();
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_set_epc_freq), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (bleServicePassive.requestIsUHF()) {
-                    bleServicePassive.requestSetEpcFrequency(PassiveReader.RF_CARRIER_866_9_MHZ);
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_UHF_reader),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_get_epc_freq), new CommandOperation() {
-            @Override
-            public void execute() {
-                if (bleServicePassive.requestIsUHF()) {
-                    bleServicePassive.requestGetEpcFrequency();
-                }
-                else {
-                    composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_UHF_reader),
-                            getMsgColor(R.color.colorErrorText));
-                    allowSendCommand();
-                }
-            }
+        tertiumCommandMap.put(getString(R.string.command_iso15693_tunnel), () -> {
+            TunnelDialogFragment dialog = TunnelDialogFragment.newInstance();
+            dialog.show(getSupportFragmentManager(), "TunnelDialogFragment");
         });
 
-        tertiumCommandMap.put(getString(R.string.command_iso15693_tunnel), new CommandOperation() {
-            @Override
-            public void execute() {
-                TunnelDialogFragment dialog = TunnelDialogFragment.newInstance();
-                dialog.show(getSupportFragmentManager(), "TunnelDialogFragment");
-            }
+        tertiumCommandMap.put(getString(R.string.command_set_inventory_mode_scan_on_input), () -> bleServicePassive.requestSetInventoryMode(PassiveReader.SCAN_ON_INPUT_MODE));
+        tertiumCommandMap.put(getString(R.string.command_set_inventory_mode_normal), () -> bleServicePassive.requestSetInventoryMode(PassiveReader.NORMAL_MODE));
+
+        tertiumCommandMap.put(getString(R.string.command_do_inventory), () -> {
+            clearTags();
+
+            bleServicePassive.requestDoInventory();
+            // special management of doInventory command, without callback
+            new Handler(Looper.getMainLooper()).postDelayed(this::allowSendCommand, 2000);
         });
 
-        tertiumCommandMap.put(getString(R.string.command_set_inventory_mode_scan_on_input), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetInventoryMode(PassiveReader.SCAN_ON_INPUT_MODE);
-            }
-        });
-        tertiumCommandMap.put(getString(R.string.command_set_inventory_mode_normal), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetInventoryMode(PassiveReader.NORMAL_MODE);
-            }
-        });
+        tertiumCommandMap.put(getString(R.string.command_reset), () -> bleServicePassive.requestReset(true));
 
-        tertiumCommandMap.put(getString(R.string.command_do_inventory), new CommandOperation() {
-            @Override
-            public void execute() {
-                clearTags();
-
-                bleServicePassive.requestDoInventory();
-                // special management of doInventory command, without callback
-                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        allowSendCommand();
-                    }
-                }, 2000);
-            }
-        });
-
-        tertiumCommandMap.put(getString(R.string.command_reset), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestReset(true);
-            }
-        });
-
-        tertiumCommandMap.put(getString(R.string.command_default_setup), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestDefaultSetup();
-            }
-        });
+        tertiumCommandMap.put(getString(R.string.command_default_setup), () -> bleServicePassive.requestDefaultSetup());
 
         return tertiumCommandMap;
     }
@@ -1616,216 +1384,58 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         LinkedHashMap<String, CommandOperation> zhagaCommandMap = new LinkedHashMap<>();
         zhagaCommandMap.put(getString(R.string.command_select_command), null);
 
-        zhagaCommandMap.put(getString(R.string.command_reboot), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestReboot();
-            }
+        zhagaCommandMap.put(getString(R.string.command_reboot), () -> bleServicePassive.requestReboot());
+
+        zhagaCommandMap.put(getString(R.string.command_off), () -> bleServicePassive.requestOff());
+
+        zhagaCommandMap.put(getString(R.string.command_set_hmi), () -> bleServicePassive.requestSetHMI(960, 400, 200, 2, ZhagaReader.LED_YELLOW, 200, 200, 3, 0, 0, 0));
+        zhagaCommandMap.put(getString(R.string.command_get_hmi_support), () -> bleServicePassive.requestGetHMIsupport());
+
+        zhagaCommandMap.put(getString(R.string.command_set_sound_for_inventory), () -> bleServicePassive.requestSetSoundForInventory(3000, 50, 40, 3));
+        zhagaCommandMap.put(getString(R.string.command_get_sound_for_inventory), () -> bleServicePassive.requestGetSoundForInventory());
+
+        zhagaCommandMap.put(getString(R.string.command_set_sound_for_command), () -> bleServicePassive.requestSetSoundForCommand(2730, 100, 0, 1));
+        zhagaCommandMap.put(getString(R.string.command_get_sound_for_command), () -> bleServicePassive.requestGetSoundForCommand());
+
+        zhagaCommandMap.put(getString(R.string.command_set_sound_for_error), () -> bleServicePassive.requestSetSoundForError(1000, 400, 0, 1));
+        zhagaCommandMap.put(getString(R.string.command_get_sound_for_error), () -> bleServicePassive.requestGetSoundForError());
+
+        zhagaCommandMap.put(getString(R.string.command_set_led_for_inventory), () -> bleServicePassive.requestSetLedForInventory(ZhagaReader.LED_GREEN, 50, 40, 3));
+        zhagaCommandMap.put(getString(R.string.command_get_led_for_inventory), () -> bleServicePassive.requestGetLedForInventory());
+
+        zhagaCommandMap.put(getString(R.string.command_set_led_for_command), () -> bleServicePassive.requestSetLedForCommand(ZhagaReader.LED_YELLOW, 100, 0, 1));
+        zhagaCommandMap.put(getString(R.string.command_get_led_for_command), () -> bleServicePassive.requestGetLedForCommand());
+
+        zhagaCommandMap.put(getString(R.string.command_set_led_for_error), () -> bleServicePassive.requestSetLedForError(ZhagaReader.LED_RED, 400, 0, 1));
+        zhagaCommandMap.put(getString(R.string.command_get_led_for_error), () -> bleServicePassive.requestGetLedForError());
+
+        zhagaCommandMap.put(getString(R.string.command_set_vibration_for_inventory), () -> bleServicePassive.requestSetVibrationForInventory(50, 40, 3));
+        zhagaCommandMap.put(getString(R.string.command_get_vibration_for_inventory), () -> bleServicePassive.requestGetVibrationForInventory());
+
+        zhagaCommandMap.put(getString(R.string.command_set_vibration_for_command), () -> bleServicePassive.requestSetVibrationForCommand(100, 0, 1));
+        zhagaCommandMap.put(getString(R.string.command_get_vibration_for_command), () -> bleServicePassive.requestGetVibrationForCommand());
+
+        zhagaCommandMap.put(getString(R.string.command_set_vibration_for_error), () -> bleServicePassive.requestSetVibrationForError(400, 0, 1));
+        zhagaCommandMap.put(getString(R.string.command_get_vibration_for_error), () -> bleServicePassive.requestGetVibrationForError());
+
+        zhagaCommandMap.put(getString(R.string.command_activate_button), () -> bleServicePassive.requestActivateButton(1));
+        zhagaCommandMap.put(getString(R.string.command_get_activated_button), () -> bleServicePassive.requestGetActivatedButton());
+
+        zhagaCommandMap.put(getString(R.string.command_set_rf), () -> bleServicePassive.requestSetRF(true));
+        zhagaCommandMap.put(getString(R.string.command_get_rf), () -> bleServicePassive.requestGetRF());
+
+        zhagaCommandMap.put(getString(R.string.command_set_rf_on_off), () -> bleServicePassive.requestSetRFonOff(100, 3000, 0));
+        zhagaCommandMap.put(getString(R.string.command_get_rf_on_off), () -> bleServicePassive.requestGetRFonOff());
+
+        zhagaCommandMap.put(getString(R.string.command_set_auto_off), () -> bleServicePassive.requestSetAutOff(600));
+        zhagaCommandMap.put(getString(R.string.command_get_auto_off), () -> bleServicePassive.requestGetAutoOff());
+
+        zhagaCommandMap.put(getString(R.string.command_transparent), () -> {
+            TransparentDialogFragment dialog = TransparentDialogFragment.newInstance();
+            dialog.show(getSupportFragmentManager(), "TransparentDialogFragment");
         });
 
-        zhagaCommandMap.put(getString(R.string.command_off), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestOff();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_hmi), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetHMI(960, 400, 200, 2, ZhagaReader.LED_YELLOW, 200, 200, 3, 0, 0, 0);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_hmi_support), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetHMIsupport();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_sound_for_inventory), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetSoundForInventory(3000, 50, 40, 3);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_sound_for_inventory), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetSoundForInventory();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_sound_for_command), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetSoundForCommand(2730, 100, 0, 1);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_sound_for_command), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetSoundForCommand();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_sound_for_error), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetSoundForError(1000, 400, 0, 1);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_sound_for_error), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetSoundForError();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_led_for_inventory), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetLedForInventory(ZhagaReader.LED_GREEN, 50, 40, 3);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_led_for_inventory), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetLedForInventory();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_led_for_command), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetLedForCommand(ZhagaReader.LED_YELLOW, 100, 0, 1);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_led_for_command), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetLedForCommand();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_led_for_error), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetLedForError(ZhagaReader.LED_RED, 400, 0, 1);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_led_for_error), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetLedForError();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_vibration_for_inventory), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetVibrationForInventory(50, 40, 3);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_vibration_for_inventory), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetVibrationForInventory();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_vibration_for_command), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetVibrationForCommand(100, 0, 1);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_vibration_for_command), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetVibrationForCommand();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_vibration_for_error), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetVibrationForError(400, 0, 1);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_vibration_for_error), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetVibrationForError();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_activate_button), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestActivateButton(1);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_activated_button), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetActivatedButton();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_rf), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetRF(true);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_rf), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetRF();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_rf_on_off), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetRFonOff(100, 3000, 0);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_rf_on_off), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetRFonOff();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_set_auto_off), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestSetAutOff(600);
-            }
-        });
-        zhagaCommandMap.put(getString(R.string.command_get_auto_off), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestGetAutoOff();
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_transparent), new CommandOperation() {
-            @Override
-            public void execute() {
-                TransparentDialogFragment dialog = TransparentDialogFragment.newInstance();
-                dialog.show(getSupportFragmentManager(), "TransparentDialogFragment");
-            }
-        });
-
-        zhagaCommandMap.put(getString(R.string.command_default_configuration), new CommandOperation() {
-            @Override
-            public void execute() {
-                bleServicePassive.requestDefaultConfiguration();
-            }
-        });
+        zhagaCommandMap.put(getString(R.string.command_default_configuration), () -> bleServicePassive.requestDefaultConfiguration());
 
         return zhagaCommandMap;
     }
@@ -1834,79 +1444,61 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         initialCommandChain = new Chain(new Handler(Looper.getMainLooper()), false);
 
         ArrayList<Runnable> initialCommandList = new ArrayList<>();
-        initialCommandList.add(new Runnable() {
-            @Override
-            public void run() {
-                if (bleServicePassive != null) {
-                    if (bleServicePassive.requestIsHF()) {
-                        composeAndAppendInitMsg(getString(R.string.reader_is_hf),
-                                getMsgColor(R.color.colorReadText));
-                    }
-                    else if (bleServicePassive.requestIsUHF()) {
-                        composeAndAppendInitMsg(getString(R.string.reader_is_uhf),
-                                getMsgColor(R.color.colorReadText));
-                    }
+        initialCommandList.add(() -> {
+            if (bleServicePassive != null) {
+                if (bleServicePassive.requestIsHF()) {
+                    composeAndAppendInitMsg(getString(R.string.reader_is_hf),
+                            getMsgColor(R.color.colorReadText));
                 }
+                else if (bleServicePassive.requestIsUHF()) {
+                    composeAndAppendInitMsg(getString(R.string.reader_is_uhf),
+                            getMsgColor(R.color.colorReadText));
+                }
+            }
+            initialCommandChain.executeNext();
+        });
+        initialCommandList.add(() -> {
+            if (bleServicePassive != null) {
+                if (bleServicePassive.requestIsHF()) {
+                    bleServicePassive.requestSetInventoryType(PassiveReader.ISO15693_AND_ISO14443A_STANDARD);
+                }
+                else if (bleServicePassive.requestIsUHF()) {
+                    bleServicePassive.requestSetInventoryType(PassiveReader.EPC_STANDARD);
+                }
+            }
+            else {
                 initialCommandChain.executeNext();
             }
         });
-        initialCommandList.add(new Runnable() {
-            @Override
-            public void run() {
-                if (bleServicePassive != null) {
-                    if (bleServicePassive.requestIsHF()) {
-                        bleServicePassive.requestSetInventoryType(PassiveReader.ISO15693_AND_ISO14443A_STANDARD);
-                    }
-                    else if (bleServicePassive.requestIsUHF()) {
-                        bleServicePassive.requestSetInventoryType(PassiveReader.EPC_STANDARD);
-                    }
-                }
-                else {
-                    initialCommandChain.executeNext();
-                }
+        initialCommandList.add(() -> {
+            if (bleServicePassive != null) {
+                bleServicePassive.requestGetFirmwareVersion();
             }
-        });
-        initialCommandList.add(new Runnable() {
-            @Override
-            public void run() {
-                if (bleServicePassive != null) {
-                    bleServicePassive.requestGetFirmwareVersion();
-                }
-                else {
-                    initialCommandChain.executeNext();
-                }
-            }
-        });
-        initialCommandList.add(new Runnable() {
-            @Override
-            public void run() {
-                if (bleServicePassive != null) {
-                    bleServicePassive.requestSetInventoryMode(PassiveReader.NORMAL_MODE);
-                }
-                else {
-                    initialCommandChain.executeNext();
-                }
-            }
-        });
-        initialCommandList.add(new Runnable() {
-            @Override
-            public void run() {
-                if (bleServicePassive != null) {
-                    bleServicePassive.requestSetInventoryParameters(PassiveReader.FEEDBACK_SOUND_AND_LIGHT, 1000,
-                            1000);
-                }
-                else {
-                    initialCommandChain.executeNext();
-                }
-            }
-        });
-        initialCommandList.add(new Runnable() {
-            @Override
-            public void run() {
-                // start repeating operations when initial operations end
-                startRepeatingOperations();
+            else {
                 initialCommandChain.executeNext();
             }
+        });
+        initialCommandList.add(() -> {
+            if (bleServicePassive != null) {
+                bleServicePassive.requestSetInventoryMode(PassiveReader.NORMAL_MODE);
+            }
+            else {
+                initialCommandChain.executeNext();
+            }
+        });
+        initialCommandList.add(() -> {
+            if (bleServicePassive != null) {
+                bleServicePassive.requestSetInventoryParameters(PassiveReader.FEEDBACK_SOUND_AND_LIGHT, 1000,
+                        1000);
+            }
+            else {
+                initialCommandChain.executeNext();
+            }
+        });
+        initialCommandList.add(() -> {
+            // start repeating operations when initial operations end
+            startRepeatingOperations();
+            initialCommandChain.executeNext();
         });
         initialCommandChain.init(initialCommandList);
 
@@ -1921,50 +1513,35 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         repeatingCommandChain = new Chain(new Handler(Looper.getMainLooper()), true);
 
         ArrayList<Runnable> repeatingCommandList = new ArrayList<>();
-        repeatingCommandList.add(new Runnable() {
-            @Override
-            public void run() {
-                disallowSendCommand();
+        repeatingCommandList.add(() -> {
+            disallowSendCommand();
+            repeatingCommandChain.executeNext();
+        });
+        repeatingCommandList.add(() -> {
+            if (bleServicePassive != null) {
+                updateAvailabilityStatus(bleServicePassive.isDeviceConnected(deviceAddress));
+            }
+            repeatingCommandChain.executeNext();
+        });
+        repeatingCommandList.add(() -> {
+            if (bleServicePassive != null) {
+                bleServicePassive.requestBatteryStatus();
+            }
+            else {
                 repeatingCommandChain.executeNext();
             }
         });
-        repeatingCommandList.add(new Runnable() {
-            @Override
-            public void run() {
-                if (bleServicePassive != null) {
-                    updateAvailabilityStatus(bleServicePassive.isDeviceConnected(deviceAddress));
-                }
+        repeatingCommandList.add(() -> {
+            if (bleServicePassive != null && bleServicePassive.requestIsHF()) {
+                bleServicePassive.requestBatteryLevel();
+            }
+            else {
                 repeatingCommandChain.executeNext();
             }
         });
-        repeatingCommandList.add(new Runnable() {
-            @Override
-            public void run() {
-                if (bleServicePassive != null) {
-                    bleServicePassive.requestBatteryStatus();
-                }
-                else {
-                    repeatingCommandChain.executeNext();
-                }
-            }
-        });
-        repeatingCommandList.add(new Runnable() {
-            @Override
-            public void run() {
-                if (bleServicePassive != null && bleServicePassive.requestIsHF()) {
-                    bleServicePassive.requestBatteryLevel();
-                }
-                else {
-                    repeatingCommandChain.executeNext();
-                }
-            }
-        });
-        repeatingCommandList.add(new Runnable() {
-            @Override
-            public void run() {
-                allowSendCommand();
-                repeatingCommandChain.executeNext();
-            }
+        repeatingCommandList.add(() -> {
+            allowSendCommand();
+            repeatingCommandChain.executeNext();
         });
         repeatingCommandChain.init(repeatingCommandList);
 
@@ -2048,7 +1625,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         // UI write
         final ArrayAdapter<String> commandSpinnerAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,
-                new ArrayList<String>(commandMap.keySet()));
+                new ArrayList<>(commandMap.keySet()));
 
         categoriesSpinner = findViewById(R.id.select_command_categories_spinner);
 
@@ -2111,17 +1688,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
 
             inventoryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-            inventoryTagsListAdapter = new InventoryTagsListAdapter(new InventoryTagsListAdapter.OnTagClickListener() {
-                @Override
-                public void onTagClick(final Tag tag) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            selectedTag = tag;
-                        }
-                    });
-                }
-            });
+            inventoryTagsListAdapter = new InventoryTagsListAdapter(tag -> runOnUiThread(() -> selectedTag = tag));
             inventoryRecyclerView.setAdapter(inventoryTagsListAdapter);
         }
 
@@ -2144,12 +1711,9 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         }
 
         activityResultLauncher = registerForActivityResult(new StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_CANCELED) {
-                            finish();
-                        }
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                        finish();
                     }
                 });
 

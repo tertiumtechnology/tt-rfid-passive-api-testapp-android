@@ -3,16 +3,15 @@ package com.tertiumtechnology.testapp.util.dialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AppCompatDialogFragment;
+
 import com.tertiumtechnology.testapp.R;
 import com.tertiumtechnology.testapp.util.dialogs.DialogUtils.HexDataTextWatcher;
-
-import androidx.appcompat.app.AppCompatDialogFragment;
 
 public class WriteUserMemoryDialogFragment extends AppCompatDialogFragment {
 
@@ -21,9 +20,7 @@ public class WriteUserMemoryDialogFragment extends AppCompatDialogFragment {
     }
 
     public static WriteUserMemoryDialogFragment newInstance() {
-        WriteUserMemoryDialogFragment dialog = new WriteUserMemoryDialogFragment();
-
-        return dialog;
+        return new WriteUserMemoryDialogFragment();
     }
 
     private WriteUserMemoryListener listener;
@@ -35,7 +32,7 @@ public class WriteUserMemoryDialogFragment extends AppCompatDialogFragment {
         try {
             listener = (WriteUserMemoryListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
+            throw new ClassCastException(context
                     + " must implement WriteUserMemoryListener");
         }
     }
@@ -57,26 +54,18 @@ public class WriteUserMemoryDialogFragment extends AppCompatDialogFragment {
 
         builder.setView(dialogView)
                 .setTitle(getString(R.string.write_user_memory_dialog_title))
-                .setPositiveButton(R.string.write_user_memory_dialog_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        int block = 0;
+                .setPositiveButton(R.string.write_user_memory_dialog_button, (dialog, id) -> {
+                    int block = 0;
 
-                        try {
-                            block = Integer.parseInt(blockText.getText().toString());
-                        } catch (NumberFormatException e) {
-                        }
-
-                        listener.onWriteUserMemory(block, dataText.getText().toString());
-
+                    try {
+                        block = Integer.parseInt(blockText.getText().toString());
+                    } catch (NumberFormatException e) {
                     }
+
+                    listener.onWriteUserMemory(block, dataText.getText().toString());
+
                 })
-                .setNegativeButton(R.string.dialog_cancel_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                .setNegativeButton(R.string.dialog_cancel_button, (dialog, which) -> dialog.dismiss());
         return builder.create();
     }
 }

@@ -56,7 +56,7 @@ public class ResponseListener extends AbstractResponseListener {
     }
 
     @Override
-    public void readEvent(byte[] tag_ID, int error, byte data[]) {
+    public void readEvent(byte[] tag_ID, int error, byte[] data) {
         HashMap<Object, Object> commandValueMap = initCommandValueMap(AbstractResponseListener
                 .READ_COMMAND);
 
@@ -74,7 +74,7 @@ public class ResponseListener extends AbstractResponseListener {
     }
 
     @Override
-    public void readTIDevent(byte[] tag_ID, int error, byte data[]) {
+    public void readTIDevent(byte[] tag_ID, int error, byte[] data) {
         HashMap<Object, Object> commandValueMap = initCommandValueMap(AbstractResponseListener
                 .READ_TID_COMMAND);
 

@@ -3,7 +3,6 @@ package com.tertiumtechnology.testapp.util.dialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,14 +11,14 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.appcompat.widget.AppCompatSpinner;
+
 import com.tertiumtechnology.api.rfidpassiveapilib.EPC_tag;
 import com.tertiumtechnology.testapp.R;
 import com.tertiumtechnology.testapp.util.dialogs.DialogUtils.HexDataTextWatcher;
 
 import java.util.ArrayList;
-
-import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.appcompat.widget.AppCompatSpinner;
 
 public class LockTagDialogFragment extends AppCompatDialogFragment {
 
@@ -28,8 +27,8 @@ public class LockTagDialogFragment extends AppCompatDialogFragment {
     }
 
     private static class LockType {
-        private int type;
-        private String name;
+        private final int type;
+        private final String name;
 
         LockType(int type, String name) {
             this.type = type;
@@ -52,7 +51,7 @@ public class LockTagDialogFragment extends AppCompatDialogFragment {
 
     private static final String TAG_TITLE = "TAG_TITLE";
 
-    private static ArrayList<LockType> lockTypes = new ArrayList<>();
+    private static final ArrayList<LockType> lockTypes = new ArrayList<>();
 
     static {
         lockTypes.add(new LockType(EPC_tag.MEMORY_PASSWORD_WRITABLE, "Memory write protected"));
@@ -85,7 +84,7 @@ public class LockTagDialogFragment extends AppCompatDialogFragment {
         try {
             listener = (LockTagListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
+            throw new ClassCastException(context
                     + " must implement LockTagListener");
         }
     }
@@ -124,18 +123,8 @@ public class LockTagDialogFragment extends AppCompatDialogFragment {
 
         builder.setView(dialogView)
                 .setTitle(getString(R.string.lock_tag_dialog_title, getArguments().getString(TAG_TITLE)))
-                .setPositiveButton(R.string.lock_tag_dialog_lock_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        listener.onLockTag(selectedLockType, passwordText.getText().toString());
-                    }
-                })
-                .setNegativeButton(R.string.dialog_cancel_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                .setPositiveButton(R.string.lock_tag_dialog_lock_button, (dialog, id) -> listener.onLockTag(selectedLockType, passwordText.getText().toString()))
+                .setNegativeButton(R.string.dialog_cancel_button, (dialog, which) -> dialog.dismiss());
         return builder.create();
     }
 }

@@ -336,7 +336,7 @@
 
     <!-- command results and errors -->
     <string name="result_command_no_error">Result: command = %1$d NO error</string>
-    <string name="result_command_error">Result: command = %1$d, error = %2$d</string>
+    <string name="result_command_error">Result: command = %1$d, error = %2$s</string>
 
     <!-- events -->
     <string name="event_button_values">Button event: button = %1$d, time = %2$d</string>

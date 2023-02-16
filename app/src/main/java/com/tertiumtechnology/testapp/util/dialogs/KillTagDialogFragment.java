@@ -3,16 +3,15 @@ package com.tertiumtechnology.testapp.util.dialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AppCompatDialogFragment;
+
 import com.tertiumtechnology.testapp.R;
 import com.tertiumtechnology.testapp.util.dialogs.DialogUtils.HexDataTextWatcher;
-
-import androidx.appcompat.app.AppCompatDialogFragment;
 
 public class KillTagDialogFragment extends AppCompatDialogFragment {
 
@@ -41,7 +40,7 @@ public class KillTagDialogFragment extends AppCompatDialogFragment {
         try {
             listener = (KillTagListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
+            throw new ClassCastException(context
                     + " must implement KillTagListener");
         }
     }
@@ -62,18 +61,8 @@ public class KillTagDialogFragment extends AppCompatDialogFragment {
 
         builder.setView(dialogView)
                 .setTitle(getString(R.string.kill_tag_dialog_title, getArguments().getString(TAG_TITLE)))
-                .setPositiveButton(R.string.kill_tag_dialog_kill_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        listener.onKillTag(passwordText.getText().toString());
-                    }
-                })
-                .setNegativeButton(R.string.dialog_cancel_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                .setPositiveButton(R.string.kill_tag_dialog_kill_button, (dialog, id) -> listener.onKillTag(passwordText.getText().toString()))
+                .setNegativeButton(R.string.dialog_cancel_button, (dialog, which) -> dialog.dismiss());
         return builder.create();
     }
 }

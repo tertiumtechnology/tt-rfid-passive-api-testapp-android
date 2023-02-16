@@ -3,17 +3,16 @@ package com.tertiumtechnology.testapp.util.dialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
-import com.tertiumtechnology.testapp.R;
-import com.tertiumtechnology.testapp.util.dialogs.DialogUtils.HexDataTextWatcher;
-
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.appcompat.widget.AppCompatTextView;
+
+import com.tertiumtechnology.testapp.R;
+import com.tertiumtechnology.testapp.util.dialogs.DialogUtils.HexDataTextWatcher;
 
 public class WriteTagDialogFragment extends AppCompatDialogFragment {
 
@@ -44,7 +43,7 @@ public class WriteTagDialogFragment extends AppCompatDialogFragment {
         try {
             listener = (WriteTagListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
+            throw new ClassCastException(context
                     + " must implement WriteTagListener");
         }
     }
@@ -76,25 +75,17 @@ public class WriteTagDialogFragment extends AppCompatDialogFragment {
 
         builder.setView(dialogView)
                 .setTitle(getString(R.string.write_dialog_title, getArguments().getString(TAG_TITLE)))
-                .setPositiveButton(R.string.write_dialog_write_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        int address = 0;
+                .setPositiveButton(R.string.write_dialog_write_button, (dialog, id) -> {
+                    int address = 0;
 
-                        try {
-                            address = Integer.parseInt(addressText.getText().toString());
-                        } catch (NumberFormatException e) {
-                        }
-
-                        listener.onWriteTag(address, dataText.getText().toString(), passwordText.getText().toString());
+                    try {
+                        address = Integer.parseInt(addressText.getText().toString());
+                    } catch (NumberFormatException e) {
                     }
+
+                    listener.onWriteTag(address, dataText.getText().toString(), passwordText.getText().toString());
                 })
-                .setNegativeButton(R.string.dialog_cancel_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                .setNegativeButton(R.string.dialog_cancel_button, (dialog, which) -> dialog.dismiss());
         return builder.create();
     }
 }

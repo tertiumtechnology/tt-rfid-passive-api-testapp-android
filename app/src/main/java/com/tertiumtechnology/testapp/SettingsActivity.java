@@ -5,23 +5,22 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.tertiumtechnology.api.rfidpassiveapilib.util.BleSettings;
 import com.tertiumtechnology.testapp.util.Preferences;
 
 import java.util.HashMap;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 public class SettingsActivity extends AppCompatActivity {
 
     private class IncrDecrUpdater implements Runnable {
 
-        private EditText timeout;
+        private final EditText timeout;
 
         IncrDecrUpdater(EditText timeout) {
             this.timeout = timeout;
@@ -86,67 +85,45 @@ public class SettingsActivity extends AppCompatActivity {
         timeoutEditText.setText(String.valueOf(timeoutValue));
 
         Button timeoutButtonPlus = findViewById(plusButtonResId);
-        timeoutButtonPlus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                incrementTimeout(timeoutEditText);
-            }
-        });
+        timeoutButtonPlus.setOnClickListener(v -> incrementTimeout(timeoutEditText));
 
         autoIncrements.put(timeoutEditText, false);
 
         timeoutButtonPlus.setOnLongClickListener(
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View arg0) {
-                        autoIncrements.put(timeoutEditText, true);
-                        incrDecrHandler.post(new IncrDecrUpdater(timeoutEditText));
-                        return false;
-                    }
+                arg0 -> {
+                    autoIncrements.put(timeoutEditText, true);
+                    incrDecrHandler.post(new IncrDecrUpdater(timeoutEditText));
+                    return false;
                 }
         );
 
-        timeoutButtonPlus.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if ((event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
-                        && autoIncrements.get(timeoutEditText)) {
-                    autoIncrements.put(timeoutEditText, false);
-                }
-                return false;
+        timeoutButtonPlus.setOnTouchListener((v, event) -> {
+            if ((event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
+                    && autoIncrements.get(timeoutEditText)) {
+                autoIncrements.put(timeoutEditText, false);
             }
+            return false;
         });
 
         Button timeoutButtonMinus = findViewById(minusButtonResId);
-        timeoutButtonMinus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                decrementTimeout(timeoutEditText);
-            }
-        });
+        timeoutButtonMinus.setOnClickListener(v -> decrementTimeout(timeoutEditText));
 
         autoDecrements.put(timeoutEditText, false);
 
         timeoutButtonMinus.setOnLongClickListener(
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View arg0) {
-                        autoDecrements.put(timeoutEditText, true);
-                        incrDecrHandler.post(new IncrDecrUpdater(timeoutEditText));
-                        return false;
-                    }
+                arg0 -> {
+                    autoDecrements.put(timeoutEditText, true);
+                    incrDecrHandler.post(new IncrDecrUpdater(timeoutEditText));
+                    return false;
                 }
         );
 
-        timeoutButtonMinus.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if ((event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
-                        && autoDecrements.get(timeoutEditText)) {
-                    autoDecrements.put(timeoutEditText, false);
-                }
-                return false;
+        timeoutButtonMinus.setOnTouchListener((v, event) -> {
+            if ((event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
+                    && autoDecrements.get(timeoutEditText)) {
+                autoDecrements.put(timeoutEditText, false);
             }
+            return false;
         });
     }
 

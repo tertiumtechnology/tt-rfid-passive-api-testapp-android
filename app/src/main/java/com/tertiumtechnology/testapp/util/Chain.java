@@ -29,8 +29,8 @@ public class Chain {
 
     private ChainElement currentElement;
     private ChainElement firstElement;
-    private Handler handler;
-    private boolean isCircular;
+    private final Handler handler;
+    private final boolean isCircular;
 
     public Chain(Handler handler, boolean isCircular) {
         this.handler = handler;

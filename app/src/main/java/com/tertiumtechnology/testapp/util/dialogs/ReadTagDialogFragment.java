@@ -3,15 +3,14 @@ package com.tertiumtechnology.testapp.util.dialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
-import com.tertiumtechnology.testapp.R;
-
 import androidx.appcompat.app.AppCompatDialogFragment;
+
+import com.tertiumtechnology.testapp.R;
 
 public class ReadTagDialogFragment extends AppCompatDialogFragment {
 
@@ -40,7 +39,7 @@ public class ReadTagDialogFragment extends AppCompatDialogFragment {
         try {
             listener = (ReadTagListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
+            throw new ClassCastException(context
                     + " must implement ReadTagListener");
         }
     }
@@ -59,31 +58,23 @@ public class ReadTagDialogFragment extends AppCompatDialogFragment {
 
         builder.setView(dialogView)
                 .setTitle(getString(R.string.read_dialog_title, getArguments().getString(TAG_TITLE)))
-                .setPositiveButton(R.string.read_dialog_read_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        int address = 0;
-                        int block = 0;
+                .setPositiveButton(R.string.read_dialog_read_button, (dialog, id) -> {
+                    int address = 0;
+                    int block = 0;
 
-                        try {
-                            address = Integer.parseInt(addressText.getText().toString());
-                        } catch (NumberFormatException e) {
-                        }
-
-                        try {
-                            block = Integer.parseInt(blockText.getText().toString());
-                        } catch (NumberFormatException e) {
-                        }
-
-                        listener.onReadTag(address, block);
+                    try {
+                        address = Integer.parseInt(addressText.getText().toString());
+                    } catch (NumberFormatException e) {
                     }
+
+                    try {
+                        block = Integer.parseInt(blockText.getText().toString());
+                    } catch (NumberFormatException e) {
+                    }
+
+                    listener.onReadTag(address, block);
                 })
-                .setNegativeButton(R.string.dialog_cancel_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                .setNegativeButton(R.string.dialog_cancel_button, (dialog, which) -> dialog.dismiss());
         return builder.create();
     }
 }

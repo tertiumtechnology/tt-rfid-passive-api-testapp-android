@@ -3,15 +3,14 @@ package com.tertiumtechnology.testapp.util.dialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
-import com.tertiumtechnology.testapp.R;
-
 import androidx.appcompat.app.AppCompatDialogFragment;
+
+import com.tertiumtechnology.testapp.R;
 
 public class SetNameDialogFragment extends AppCompatDialogFragment {
 
@@ -20,9 +19,7 @@ public class SetNameDialogFragment extends AppCompatDialogFragment {
     }
 
     public static SetNameDialogFragment newInstance() {
-        SetNameDialogFragment dialog = new SetNameDialogFragment();
-
-        return dialog;
+        return new SetNameDialogFragment();
     }
 
     private SetNameListener listener;
@@ -34,7 +31,7 @@ public class SetNameDialogFragment extends AppCompatDialogFragment {
         try {
             listener = (SetNameListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
+            throw new ClassCastException(context
                     + " must implement SetNameListener");
         }
     }
@@ -53,18 +50,8 @@ public class SetNameDialogFragment extends AppCompatDialogFragment {
 
         builder.setView(dialogView)
                 .setTitle(getString(R.string.set_name_dialog_title))
-                .setPositiveButton(R.string.set_name_dialog_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        listener.onSetName(nameValueText.getText().toString());
-                    }
-                })
-                .setNegativeButton(R.string.dialog_cancel_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                .setPositiveButton(R.string.set_name_dialog_button, (dialog, id) -> listener.onSetName(nameValueText.getText().toString()))
+                .setNegativeButton(R.string.dialog_cancel_button, (dialog, which) -> dialog.dismiss());
         return builder.create();
     }
 }

@@ -20,7 +20,7 @@ public class InventoryTagsListAdapter extends RecyclerView.Adapter<InventoryTags
     }
 
     public class TagViewHolder extends RecyclerView.ViewHolder {
-        private AppCompatTextView tagView;
+        private final AppCompatTextView tagView;
 
         public TagViewHolder(View itemView) {
             super(itemView);
@@ -30,22 +30,19 @@ public class InventoryTagsListAdapter extends RecyclerView.Adapter<InventoryTags
         public void bind(final Tag tag, final OnTagClickListener tagClickListener, final int position) {
             this.tagView.setText(tag.toString());
 
-            this.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    notifyItemChanged(tagSelected);
-                    tagSelected = position;
-                    notifyItemChanged(tagSelected);
+            this.itemView.setOnClickListener(v -> {
+                notifyItemChanged(tagSelected);
+                tagSelected = position;
+                notifyItemChanged(tagSelected);
 
-                    tagClickListener.onTagClick(tag);
-                }
+                tagClickListener.onTagClick(tag);
             });
         }
     }
 
     private int tagSelected = -1;
-    private List<Tag> tags;
-    private OnTagClickListener tagClickListener;
+    private final List<Tag> tags;
+    private final OnTagClickListener tagClickListener;
 
     public InventoryTagsListAdapter(OnTagClickListener tagClickListener) {
         this.tagClickListener = tagClickListener;

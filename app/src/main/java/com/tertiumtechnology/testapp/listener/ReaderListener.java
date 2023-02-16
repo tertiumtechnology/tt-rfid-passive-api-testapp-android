@@ -322,7 +322,7 @@ public class ReaderListener extends AbstractReaderListener {
     }
 
     @Override
-    public void tunnelEvent(byte data[]) {
+    public void tunnelEvent(byte[] data) {
         logResponse("Tag tunnel data: ");
         String strData = extractStringFromByteArray(data);
 

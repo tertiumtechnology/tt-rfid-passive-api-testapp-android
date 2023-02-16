@@ -11,18 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.tertiumtechnology.api.rfidpassiveapilib.scan.AbstractScanListener;
-import com.tertiumtechnology.api.rfidpassiveapilib.scan.BleDevice;
-import com.tertiumtechnology.api.rfidpassiveapilib.scan.PassiveScanner;
-import com.tertiumtechnology.testapp.util.BleUtil;
-import com.tertiumtechnology.testapp.util.adapters.BleDeviceListAdapter;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.annotation.NonNull;
@@ -32,6 +20,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.tertiumtechnology.api.rfidpassiveapilib.scan.AbstractScanListener;
+import com.tertiumtechnology.api.rfidpassiveapilib.scan.BleDevice;
+import com.tertiumtechnology.api.rfidpassiveapilib.scan.PassiveScanner;
+import com.tertiumtechnology.testapp.util.BleUtil;
+import com.tertiumtechnology.testapp.util.adapters.BleDeviceListAdapter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ScanActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1;
@@ -50,8 +48,7 @@ public class ScanActivity extends AppCompatActivity {
             menu.findItem(R.id.menu_stop).setVisible(false);
             menu.findItem(R.id.menu_refresh).setActionView(null);
             menu.findItem(R.id.menu_refresh).setVisible(false);
-        }
-        else {
+        } else {
             menu.findItem(R.id.menu_scan).setVisible(false);
             menu.findItem(R.id.menu_stop).setVisible(true);
             menu.findItem(R.id.menu_refresh).setActionView(
@@ -66,14 +63,14 @@ public class ScanActivity extends AppCompatActivity {
             case R.id.menu_scan:
                 bleDeviceListAdapter.clear();
 
-                checkForBluetoothEnabled();
+                checkForBluetoothPermissionAndEnabled();
 
                 boolean permissionGranted = true;
 
                 List<String> permissions = new ArrayList<>(Arrays.asList(permission.ACCESS_COARSE_LOCATION,
                         permission.ACCESS_FINE_LOCATION));
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !checkPermissions(permissions)) {
+                if (!checkPermissions(permissions)) {
 
                     String[] permissionsArray = new String[permissions.size()];
                     permissionsArray = permissions.toArray(permissionsArray);
@@ -113,6 +110,38 @@ public class ScanActivity extends AppCompatActivity {
                 scanner.startScan();
                 supportInvalidateOptionsMenu();
             }
+        }
+
+        if (requestCode == REQUEST_ENABLE_BT) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                checkForBluetoothEnabled();
+            }
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    }
+
+    private void checkForBluetoothPermissionAndEnabled() {
+        boolean permissionGranted = true;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            List<String> permissions = new ArrayList<>(Arrays.asList(permission.BLUETOOTH_CONNECT,
+                    permission.BLUETOOTH_SCAN));
+
+            if (!checkPermissions(permissions)) {
+                String[] permissionsArray = new String[permissions.size()];
+                permissionsArray = permissions.toArray(permissionsArray);
+
+                ActivityCompat.requestPermissions(this, permissionsArray, REQUEST_ENABLE_BT);
+
+                permissionGranted = false;
+            }
+        }
+
+        if (permissionGranted) {
+            checkForBluetoothEnabled();
         }
     }
 
@@ -155,34 +184,21 @@ public class ScanActivity extends AppCompatActivity {
         }
 
         activityResultLauncher = registerForActivityResult(new StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_CANCELED) {
-                            finish();
-                        }
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                        finish();
                     }
                 });
 
         AbstractScanListener scanListener = new AbstractScanListener() {
             @Override
             public void deviceFoundEvent(final BleDevice device) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        bleDeviceListAdapter.addDevice(device);
-                    }
-                });
+                runOnUiThread(() -> bleDeviceListAdapter.addDevice(device));
             }
 
             @Override
             public void stopScanEvent() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        supportInvalidateOptionsMenu();
-                    }
-                });
+                runOnUiThread(() -> supportInvalidateOptionsMenu());
             }
         };
 
@@ -195,26 +211,17 @@ public class ScanActivity extends AppCompatActivity {
 
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-            BleDeviceListAdapter.OnDeviceClickListener onDeviceClickListener = new BleDeviceListAdapter
-                    .OnDeviceClickListener() {
-                @Override
-                public void onDeviceClick(final BleDevice device) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(ScanActivity.this, DeviceActivityPassive.class);
-                            intent.putExtra(DeviceActivityPassive.EXTRAS_DEVICE_NAME, device.getName());
-                            intent.putExtra(DeviceActivityPassive.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+            BleDeviceListAdapter.OnDeviceClickListener onDeviceClickListener = device -> runOnUiThread(() -> {
+                Intent intent = new Intent(ScanActivity.this, DeviceActivityPassive.class);
+                intent.putExtra(DeviceActivityPassive.EXTRAS_DEVICE_NAME, device.getName());
+                intent.putExtra(DeviceActivityPassive.EXTRAS_DEVICE_ADDRESS, device.getAddress());
 
-                            if (scanner.isScanning()) {
-                                scanner.stopScan();
-                            }
-
-                            startActivity(intent);
-                        }
-                    });
+                if (scanner.isScanning()) {
+                    scanner.stopScan();
                 }
-            };
+
+                startActivity(intent);
+            });
 
             bleDeviceListAdapter = new BleDeviceListAdapter(onDeviceClickListener);
             recyclerView.setAdapter(bleDeviceListAdapter);
@@ -234,6 +241,6 @@ public class ScanActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        checkForBluetoothEnabled();
+        checkForBluetoothPermissionAndEnabled();
     }
 }
