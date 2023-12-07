@@ -602,6 +602,12 @@ public class BleServicePassive extends Service {
         }
     }
 
+    public void requestSetInventoryFormat(int format) {
+        if (passiveReader != null) {
+            passiveReader.setInventoryFormat(format);
+        }
+    }
+
     public void requestSetInventoryParameters(int feedback, int timeout, int interval) {
         if (passiveReader != null) {
             passiveReader.setInventoryParameters(feedback, timeout, interval);
@@ -844,26 +850,10 @@ public class BleServicePassive extends Service {
         }
     }
 
-    public void requestWriteID(EPC_tag epc_tag) {
+    public void requestWriteID(EPC_tag epc_tag, String hexId, short nsi) {
         if (passiveReader != null) {
-            byte[] ID = new byte[16];
-            ID[0] = 0x00;
-            ID[1] = 0x01;
-            ID[2] = 0x02;
-            ID[3] = 0x03;
-            ID[4] = 0x04;
-            ID[5] = 0x05;
-            ID[6] = 0x06;
-            ID[7] = 0x07;
-            ID[8] = 0x08;
-            ID[9] = 0x09;
-            ID[10] = 0x0A;
-            ID[11] = 0x0B;
-            ID[12] = 0x0C;
-            ID[13] = 0x0D;
-            ID[14] = 0x0E;
-            ID[15] = 0x0F;
-            epc_tag.writeID(ID, (short) (0x0000));
+            byte[] ID = hexStringToByte(hexId);
+            epc_tag.writeID(ID, nsi);
         }
     }
 

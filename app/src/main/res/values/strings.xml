@@ -56,13 +56,13 @@
     <string name="battery_level_value">%1$s V</string>
 
     <!-- selectable commands -->
-    <string name="category_command_select_category">Select category</string>
-    <string name="category_command_common">COMMON</string>
-    <string name="category_command_ble">BLE</string>
-    <string name="category_command_memory">MEMORY</string>
-    <string name="category_command_tertium">TERTIUM</string>
-    <string name="category_command_tag">TAG</string>
-    <string name="category_command_zhaga">ZHAGA</string>
+    <string name="category_command_select_category">Select CMD category</string>
+    <string name="category_command_common">BLE CMD</string>
+    <string name="category_command_ble">BLE CONFIG</string>
+    <string name="category_command_memory">BLE MEMORY</string>
+    <string name="category_command_tertium">TERTIUM CMD</string>
+    <string name="category_command_tag">TAG CMD</string>
+    <string name="category_command_zhaga">ZHAGA CMD</string>
 
     <string name="command_select_category_first"></string>
     <string name="command_select_command">Select Operation</string>
@@ -113,6 +113,13 @@
     <string name="command_set_inventory_mode_scan_on_input">Set Scan On Input</string>
     <string name="command_set_inventory_mode_normal">Set Normal Scan</string>
 
+    <string name="command_set_inventory_format">Set Inventory Format</string>
+    <string name="command_setting_inventory_format">Setting Inventory Format</string>
+    <string name="command_inventory_format_sett">Inventory Format Set</string>
+
+    <string name="set_inventory_format_dialog_title">Set Inventory Format</string>
+    <string name="set_inventory_format_dialog_format_type">Type</string>
+    <string name="set_inventory_format_dialog_button">Set Format</string>
 
     <string name="command_do_inventory">Do Inventory</string>
     <string name="inventory_tag_discovered">Discovered tag ID = %1$s</string>
@@ -137,8 +144,8 @@
     <string name="reading_tid">Reading TID on Tag #%1$s</string>
     <string name="tid_read">TID: %1$s</string>
 
-    <string name="command_write_id">Write ID for selected tag</string>
-    <string name="writing_id">Writing ID on Tag #%1$s</string>
+    <string name="command_write_id">Write ID to selected tag</string>
+    <string name="writing_id">Writing ID to tag</string>
     <string name="tag_id_written">Tag ID written</string>
 
     <string name="command_write_kill_password">Write kill password for selected tag</string>
@@ -308,6 +315,14 @@
 
     <string name="kill_tag_dialog_title">Kill %1$s</string>
     <string name="kill_tag_dialog_kill_button">Kill</string>
+
+    <string name="write_id_dialog_title">Write ID for %1$s</string>
+    <string name="write_id_dialog_write_button">Write ID</string>
+    <string name="write_id_dialog_data">ID</string>
+    <string name="write_id_dialog_data_type">ID type</string>
+    <string name="write_id_dialog_nsi">NSI</string>
+    <string name="write_id_dialog_nsi_default_value">0000</string>
+
 
     <string name="dialog_password">Password</string>
     <string name="dialog_cancel_button">Cancel</string>

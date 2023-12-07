@@ -63,7 +63,7 @@ public class DialogUtils {
         }
     }
 
-    private static void appendAllCapsInputFilter(EditText dataText) {
+    static void appendAllCapsInputFilter(EditText dataText) {
         InputFilter[] dataTextFilters = dataText.getFilters();
 
         InputFilter[] newDataTextFilters = new InputFilter[dataTextFilters.length + 1];

@@ -59,45 +59,45 @@ public class ScanActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_scan:
-                bleDeviceListAdapter.clear();
+        int itemId = item.getItemId();
 
-                checkForBluetoothPermissionAndEnabled();
+        if (itemId == R.id.menu_scan) {
+            bleDeviceListAdapter.clear();
 
-                boolean permissionGranted = true;
+            checkForBluetoothPermissionAndEnabled();
 
-                List<String> permissions = new ArrayList<>(Arrays.asList(permission.ACCESS_COARSE_LOCATION,
-                        permission.ACCESS_FINE_LOCATION));
+            boolean permissionGranted = true;
 
-                if (!checkPermissions(permissions)) {
+            List<String> permissions = new ArrayList<>(Arrays.asList(permission.ACCESS_COARSE_LOCATION,
+                    permission.ACCESS_FINE_LOCATION));
 
-                    String[] permissionsArray = new String[permissions.size()];
-                    permissionsArray = permissions.toArray(permissionsArray);
+            if (!checkPermissions(permissions)) {
 
-                    ActivityCompat.requestPermissions(this, permissionsArray, REQUEST_LOCATION);
+                String[] permissionsArray = new String[permissions.size()];
+                permissionsArray = permissions.toArray(permissionsArray);
 
-                    permissionGranted = false;
-                }
+                ActivityCompat.requestPermissions(this, permissionsArray, REQUEST_LOCATION);
 
-                if (permissionGranted) {
-                    scanner.startScan();
-                    supportInvalidateOptionsMenu();
-                }
-                break;
-            case R.id.menu_stop:
-                scanner.stopScan();
+                permissionGranted = false;
+            }
+
+            if (permissionGranted) {
+                scanner.startScan();
                 supportInvalidateOptionsMenu();
-                break;
-            case R.id.menu_settings:
-
-                Intent intent = new Intent(ScanActivity.this, SettingsActivity.class);
-                if (scanner.isScanning()) {
-                    scanner.stopScan();
-                }
-                startActivity(intent);
-                break;
+            }
+        } else if (itemId == R.id.menu_stop) {
+            scanner.stopScan();
+            supportInvalidateOptionsMenu();
+        } else if (itemId == R.id.menu_settings) {
+            Intent intent = new Intent(ScanActivity.this, SettingsActivity.class);
+            if (scanner.isScanning()) {
+                scanner.stopScan();
+            }
+            startActivity(intent);
+        } else {
+            throw new IllegalStateException("Unexpected value: " + item.getItemId());
         }
+
         return true;
     }
 

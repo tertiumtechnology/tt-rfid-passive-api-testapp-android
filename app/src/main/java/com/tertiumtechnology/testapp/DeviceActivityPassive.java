@@ -51,11 +51,13 @@ import com.tertiumtechnology.testapp.util.adapters.InventoryTagsListAdapter;
 import com.tertiumtechnology.testapp.util.dialogs.KillTagDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.LockTagDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.ReadTagDialogFragment;
+import com.tertiumtechnology.testapp.util.dialogs.SetInventoryFormatDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.SetNameDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.TransparentDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.TransparentDialogFragment.TransparentCommandListener;
 import com.tertiumtechnology.testapp.util.dialogs.TunnelDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteAccessPasswordDialogFragment;
+import com.tertiumtechnology.testapp.util.dialogs.WriteIdDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteKillPasswordDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteTagDialogFragment;
 import com.tertiumtechnology.testapp.util.dialogs.WriteUserMemoryDialogFragment;
@@ -70,8 +72,9 @@ import java.util.Map;
 public class DeviceActivityPassive extends AppCompatActivity implements ReadTagDialogFragment.ReadTagListener,
         WriteTagDialogFragment.WriteTagListener, LockTagDialogFragment.LockTagListener,
         WriteAccessPasswordDialogFragment.WriteAccessPasswordListener, KillTagDialogFragment.KillTagListener,
-        WriteKillPasswordDialogFragment.WriteKillPasswordListener, TunnelDialogFragment.TunnelListener,
-        SetNameDialogFragment.SetNameListener, WriteUserMemoryListener,
+        WriteKillPasswordDialogFragment.WriteKillPasswordListener, WriteIdDialogFragment.WriteIdListener,
+        TunnelDialogFragment.TunnelListener, SetNameDialogFragment.SetNameListener, WriteUserMemoryListener,
+        SetInventoryFormatDialogFragment.SetInventoryFormatTagListener,
         TransparentCommandListener {
 
     interface CommandOperation {
@@ -99,16 +102,14 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 clearTags();
 
                 startInitalOperations();
-            }
-            else if (BleServicePassive.INTENT_ACTION_DEVICE_DISCONNECTED.equals
+            } else if (BleServicePassive.INTENT_ACTION_DEVICE_DISCONNECTED.equals
                     (intent.getAction())) {
                 stopAllOperations();
                 disableSendCommand();
 
                 connectionState = ConnectionState.DISCONNECTED;
                 supportInvalidateOptionsMenu();
-            }
-            else if (BleServicePassive.INTENT_ACTION_DEVICE_CONNECTION_OPERATION_FAILED.equals(intent.getAction())) {
+            } else if (BleServicePassive.INTENT_ACTION_DEVICE_CONNECTION_OPERATION_FAILED.equals(intent.getAction())) {
                 stopAllOperations();
                 disableSendCommand();
 
@@ -118,8 +119,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 String stringExtra = intent.getStringExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE);
 
                 composeAndAppendInputCommandMsg(stringExtra, getMsgColor(R.color.colorErrorText));
-            }
-            else if (BleServicePassive.INTENT_ACTION_DEVICE_COMMAND_CALLBACK
+            } else if (BleServicePassive.INTENT_ACTION_DEVICE_COMMAND_CALLBACK
                     .equals(intent.getAction())) {
 
                 Map<Object, Object> dataRead = getDataMap(intent);
@@ -130,8 +130,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
 
                     manageCommandCallback(command, dataRead);
                 }
-            }
-            else if (BleServicePassive.INTENT_ACTION_DEVICE_COMMAND_RESULT
+            } else if (BleServicePassive.INTENT_ACTION_DEVICE_COMMAND_RESULT
                     .equals(intent.getAction())) {
                 Map<Object, Object> dataRead = getDataMap(intent);
 
@@ -140,8 +139,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
 
                 manageCommandResult(commandCode, dataRead.get(BleServicePassive
                         .INTENT_EXTRA_DATA_ERROR));
-            }
-            else if (BleServicePassive
+            } else if (BleServicePassive
                     .INTENT_ACTION_DEVICE_COMMAND_CALLBACK_RESULT.equals(intent.getAction())) {
                 Map<Object, Object> dataRead = getDataMap(intent);
 
@@ -152,14 +150,12 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
 
                 manageCommandResult(commandCode, dataRead.get(BleServicePassive
                         .INTENT_EXTRA_DATA_ERROR));
-            }
-            else if (BleServicePassive
+            } else if (BleServicePassive
                     .INTENT_ACTION_DEVICE_EVENT_RESULT.equals(intent.getAction())) {
                 Map<Object, Object> dataRead = getDataMap(intent);
 
                 manageEventResult(dataRead);
-            }
-            else if (BleServicePassive
+            } else if (BleServicePassive
                     .INTENT_ACTION_DEVICE_EVENT_TRIGGERED.equals(intent.getAction())) {
                 Map<Object, Object> dataRead = getDataMap(intent);
 
@@ -168,8 +164,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
 
                     manageEventTriggered(event, dataRead);
                 }
-            }
-            else {
+            } else {
                 throw new UnsupportedOperationException(getString(R.string.error_invalid_action));
             }
         }
@@ -179,8 +174,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 dataRead = (Map<Object, Object>) intent.getSerializableExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE, Serializable.class);
-            }
-            else{
+            } else {
                 dataRead = (Map<Object, Object>) intent.getSerializableExtra(BleServicePassive.INTENT_EXTRA_DATA_VALUE);
             }
             return dataRead;
@@ -212,7 +206,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             .availability_status_not_available);
 
                     composeAndAppendInputCommandMsg(getString(R.string.test_availability_value,
-                            testAvailabiliyValue)
+                                    testAvailabiliyValue)
                             , getMsgColor(R.color.colorReadText));
                     break;
                 case AbstractReaderListener.GET_SHUTDOWN_TIME_COMMAND:
@@ -238,7 +232,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             .INTENT_EXTRA_DATA_ISO15693_OPTION_BITS);
 
                     composeAndAppendInputCommandMsg(getString(R.string.get_iso15693_option_bits_value,
-                            optionBits),
+                                    optionBits),
                             getMsgColor(R
                                     .color.colorReadText));
                     break;
@@ -249,7 +243,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             .INTENT_EXTRA_DATA_ISO15693_EXTENSION_FLAG_PERMANENT);
 
                     composeAndAppendInputCommandMsg(getString(R.string.get_iso15693_extension_flag_values,
-                            flag, permanent),
+                                    flag, permanent),
                             getMsgColor(R.color.colorReadText));
                     break;
                 case AbstractReaderListener.GET_ISO15693_BITRATE_COMMAND:
@@ -259,7 +253,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             .INTENT_EXTRA_DATA_ISO15693_BITRATE_PERMANENT);
 
                     composeAndAppendInputCommandMsg(getString(R.string.get_iso15693_bitrate_values, bitrate,
-                            permanentBitrate),
+                                    permanentBitrate),
                             getMsgColor(R.color.colorReadText));
                     break;
                 case AbstractReaderListener.ISO15693_TUNNEL_COMMAND:
@@ -376,7 +370,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                     int advertisingInterval =
                             (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_ADVERTISING_INTERVAL);
                     composeAndAppendInputCommandMsg(getString(R.string.get_advertising_interval_value,
-                            advertisingInterval)
+                                    advertisingInterval)
                             , getMsgColor(R.color.colorReadText));
 
                     break;
@@ -410,7 +404,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                     int mtu = (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_MTU);
 
                     composeAndAppendInputCommandMsg(getString(R.string.connection_interval_and_mtu_values,
-                            connectionInterval, mtu),
+                                    connectionInterval, mtu),
                             getMsgColor(R.color.colorReadText));
                     break;
                 case AbstractReaderListener.GET_MAC_ADDRESS_COMMAND:
@@ -433,7 +427,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                     int buttonNumber = (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_HMI_BUTTON_NUMBER);
 
                     composeAndAppendInputCommandMsg(getString(R.string.hmi_support_values, ledColor, soundVibration,
-                            buttonNumber),
+                                    buttonNumber),
                             getMsgColor(R.color.colorReadText));
                     break;
                 case AbstractZhagaListener.ZHAGA_GET_INVENTORY_SOUND_COMMAND:
@@ -447,8 +441,8 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_INVENTORY_SOUND_REPETITION);
 
                     composeAndAppendInputCommandMsg(getString(R.string.sound_for_inventory_values,
-                            inventorySoundFrequency,
-                            inventorySoundOnTime, inventorySoundOffTime, inventorySoundRepetition),
+                                    inventorySoundFrequency,
+                                    inventorySoundOnTime, inventorySoundOffTime, inventorySoundRepetition),
                             getMsgColor(R.color.colorReadText));
                     break;
                 case AbstractZhagaListener.ZHAGA_GET_COMMAND_SOUND_COMMAND:
@@ -462,7 +456,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_SOUND_REPETITION);
 
                     composeAndAppendInputCommandMsg(getString(R.string.sound_for_command_values, commandSoundFrequency,
-                            commandSoundOnTime, commandSoundOffTime, commandSoundRepetition),
+                                    commandSoundOnTime, commandSoundOffTime, commandSoundRepetition),
                             getMsgColor(R.color.colorReadText));
                     break;
                 case AbstractZhagaListener.ZHAGA_GET_ERROR_SOUND_COMMAND:
@@ -476,7 +470,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_ERROR_SOUND_REPETITION);
 
                     composeAndAppendInputCommandMsg(getString(R.string.sound_for_error_values, errorSoundFrequency,
-                            errorSoundOnTime, errorSoundOffTime, errorSoundRepetition),
+                                    errorSoundOnTime, errorSoundOffTime, errorSoundRepetition),
                             getMsgColor(R.color.colorReadText));
                     break;
 
@@ -491,7 +485,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_INVENTORY_LED_LIGHT_REPETITION);
 
                     composeAndAppendInputCommandMsg(getString(R.string.led_for_inventory_values,
-                            inventoryLightColor, inventoryLightOnTime, inventoryLightOffTime, inventoryLightRepetition),
+                                    inventoryLightColor, inventoryLightOnTime, inventoryLightOffTime, inventoryLightRepetition),
                             getMsgColor(R.color.colorReadText));
                     break;
                 case AbstractZhagaListener.ZHAGA_GET_COMMAND_LED_COMMAND:
@@ -505,7 +499,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_LED_LIGHT_REPETITION);
 
                     composeAndAppendInputCommandMsg(getString(R.string.led_for_command_values, commandLightColor,
-                            commandLightOnTime, commandLightOffTime, commandLightRepetition),
+                                    commandLightOnTime, commandLightOffTime, commandLightRepetition),
                             getMsgColor(R.color.colorReadText));
                     break;
                 case AbstractZhagaListener.ZHAGA_GET_ERROR_LED_COMMAND:
@@ -519,7 +513,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_ERROR_LED_LIGHT_REPETITION);
 
                     composeAndAppendInputCommandMsg(getString(R.string.led_for_error_values, errorLightColor,
-                            errorLightOnTime, errorLightOffTime, errorLightRepetition),
+                                    errorLightOnTime, errorLightOffTime, errorLightRepetition),
                             getMsgColor(R.color.colorReadText));
                     break;
 
@@ -532,7 +526,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_INVENTORY_VIBRATION_REPETITION);
 
                     composeAndAppendInputCommandMsg(getString(R.string.vibration_for_inventory_values,
-                            inventoryVibrationOnTime, inventoryVibrationOffTime, inventoryVibrationRepetition),
+                                    inventoryVibrationOnTime, inventoryVibrationOffTime, inventoryVibrationRepetition),
                             getMsgColor(R.color.colorReadText));
                     break;
                 case AbstractZhagaListener.ZHAGA_GET_COMMAND_VIBRATION_COMMAND:
@@ -544,7 +538,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_COMMAND_VIBRATION_REPETITION);
 
                     composeAndAppendInputCommandMsg(getString(R.string.vibration_for_command_values,
-                            commandVibrationOnTime, commandVibrationOffTime, commandVibrationRepetition),
+                                    commandVibrationOnTime, commandVibrationOffTime, commandVibrationRepetition),
                             getMsgColor(R.color.colorReadText));
                     break;
                 case AbstractZhagaListener.ZHAGA_GET_ERROR_VIBRATION_COMMAND:
@@ -556,7 +550,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                             (int) data.get(BleServicePassive.INTENT_EXTRA_DATA_ERROR_VIBRATION_REPETITION);
 
                     composeAndAppendInputCommandMsg(getString(R.string.vibration_for_error_values,
-                            errorVibrationOnTime, errorVibrationOffTime, errorVibrationRepetition),
+                                    errorVibrationOnTime, errorVibrationOffTime, errorVibrationRepetition),
                             getMsgColor(R.color.colorReadText));
                     break;
 
@@ -614,30 +608,25 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
 
                 if (isInitalCommand) {
                     composeAndAppendInitMsg(errorMsg, getMsgColor(R.color.colorErrorText));
-                }
-                else {
+                } else {
                     composeAndAppendInputCommandMsg(errorMsg, getMsgColor(R.color.colorErrorText));
                 }
-            }
-            else if (!isRepeatingCommand) {
+            } else if (!isRepeatingCommand) {
                 // append messages to scroll windows only if not in repeating operations
                 String resultMsg = getString(R.string.result_command_no_error, commandCode);
 
                 if (isInitalCommand && !initialCommandChain.hasEnded()) {
                     composeAndAppendInitMsg(resultMsg, getMsgColor(R.color.colorReadText));
-                }
-                else {
+                } else {
                     composeAndAppendInputCommandMsg(resultMsg, getMsgColor(R.color.colorReadText));
                 }
             }
 
             if (isInitalCommand && !initialCommandChain.hasEnded()) {
                 initialCommandChain.executeNext();
-            }
-            else if (isRepeatingCommand) {
+            } else if (isRepeatingCommand) {
                 repeatingCommandChain.executeNext();
-            }
-            else {
+            } else {
                 allowSendCommand();
             }
         }
@@ -714,6 +703,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
     private Chain repeatingCommandChain;
     private ArrayList<Integer> repeatingCommandCodes;
 
+    private RecyclerView inventoryRecyclerView;
     private InventoryTagsListAdapter inventoryTagsListAdapter;
     private Tag selectedTag;
 
@@ -751,8 +741,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 composeAndAppendInputCommandMsg(getString(R.string.killing_tag, selectedTag.toString()),
                         getMsgColor(R.color.colorReadText));
                 bleServicePassive.requestKill((EPC_tag) selectedTag, hexPassword);
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -767,8 +756,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 composeAndAppendInputCommandMsg(getString(R.string.locking_tag, selectedTag.toString()),
                         getMsgColor(R.color.colorReadText));
                 bleServicePassive.requestLock(selectedTag, lockType, hexPassword);
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -799,8 +787,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             menu.findItem(R.id.menu_disconnect).setVisible(false);
             menu.findItem(R.id.menu_refresh).setActionView(null);
             menu.findItem(R.id.menu_refresh).setVisible(false);
-        }
-        else if (connectionState == ConnectionState.CONNECTING) {
+        } else if (connectionState == ConnectionState.CONNECTING) {
             menu.findItem(R.id.menu_connect).setVisible(false);
             menu.findItem(R.id.menu_connecting).setVisible(true);
             menu.findItem(R.id.menu_disconnect).setVisible(false);
@@ -808,8 +795,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             menu.findItem(R.id.menu_refresh).setActionView(
                     R.layout.actionbar_indeterminate_progress);
             menu.findItem(R.id.menu_refresh).setVisible(true);
-        }
-        else if (connectionState == ConnectionState.CONNECTED) {
+        } else if (connectionState == ConnectionState.CONNECTED) {
             menu.findItem(R.id.menu_connect).setVisible(false);
             menu.findItem(R.id.menu_connecting).setVisible(false);
             menu.findItem(R.id.menu_disconnect).setVisible(true);
@@ -833,8 +819,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                                 ()),
                         getMsgColor(R.color.colorReadText));
                 bleServicePassive.requestRead(selectedTag, address, block);
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -849,8 +834,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 composeAndAppendInputCommandMsg(getString(R.string.setting_name, name),
                         getMsgColor(R.color.colorReadText));
                 bleServicePassive.requestSetName(name);
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_name_not_defined),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -883,8 +867,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 composeAndAppendInputCommandMsg(getString(R.string.writing_access_password, selectedTag.toString()),
                         getMsgColor(R.color.colorReadText));
                 bleServicePassive.requestWriteAccessPassword((EPC_tag) selectedTag, hexOldPassword, hexNewPassword);
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -899,8 +882,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 composeAndAppendInputCommandMsg(getString(R.string.writing_kill_password, selectedTag.toString()),
                         getMsgColor(R.color.colorReadText));
                 bleServicePassive.requestWriteKillPassword((EPC_tag) selectedTag, hexOldPassword, hexNewPassword);
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -915,8 +897,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 composeAndAppendInputCommandMsg(getString(R.string.writing_tag, selectedTag.toString()), getMsgColor
                         (R.color.colorReadText));
                 bleServicePassive.requestWrite(selectedTag, address, hexData, hexPassword);
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -930,6 +911,30 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             composeAndAppendInputCommandMsg(getString(R.string.writing_user_memory, hexData), getMsgColor
                     (R.color.colorReadText));
             bleServicePassive.requestWriteUserMemory(block, hexData);
+        }
+    }
+
+    @Override
+    public void onWriteId(String hexId, short nsi) {
+        if (bleServicePassive != null) {
+            if (selectedTag != null) {
+                composeAndAppendInputCommandMsg(getString(R.string.writing_id),
+                        getMsgColor(R.color.colorReadText));
+                bleServicePassive.requestWriteID((EPC_tag) selectedTag, hexId, nsi);
+            } else {
+                composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
+                        getMsgColor(R.color.colorErrorText));
+                allowSendCommand();
+            }
+        }
+    }
+
+    @Override
+    public void onSetFormat(int inventoryFormat) {
+        if (bleServicePassive != null) {
+            composeAndAppendInputCommandMsg(getString(R.string.command_setting_inventory_format),
+                    getMsgColor(R.color.colorReadText));
+            bleServicePassive.requestSetInventoryFormat(inventoryFormat);
         }
     }
 
@@ -1023,12 +1028,28 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         LinkedHashMap<String, CommandOperation> memoryCommandMap = initCommandMapMemory();
         commandCategoriesMap.put(getString(R.string.category_command_memory), memoryCommandMap);
 
+        CommandOperation doInventoryCommandOperation = () -> {
+            clearTags();
+
+            bleServicePassive.requestDoInventory();
+            // special management of doInventory command, without callback
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                allowSendCommand();
+
+                // select first Tag
+                RecyclerView.ViewHolder viewHolder = inventoryRecyclerView.findViewHolderForAdapterPosition(0);
+                if (viewHolder != null && selectedTag == null) {
+                    viewHolder.itemView.performClick();
+                }
+            }, 2000);
+        };
+
         // category_command_tertium
-        LinkedHashMap<String, CommandOperation> tertiumCommandMap = initCommandMapTertium();
+        LinkedHashMap<String, CommandOperation> tertiumCommandMap = initCommandMapTertium(doInventoryCommandOperation);
         commandCategoriesMap.put(getString(R.string.category_command_tertium), tertiumCommandMap);
 
         // category_command_tag
-        LinkedHashMap<String, CommandOperation> tagCommandMap = initCommandMapTag();
+        LinkedHashMap<String, CommandOperation> tagCommandMap = initCommandMapTag(doInventoryCommandOperation);
         commandCategoriesMap.put(getString(R.string.category_command_tag), tagCommandMap);
 
         // category_command_zhaga
@@ -1103,9 +1124,12 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         return memoryCommandMap;
     }
 
-    private LinkedHashMap<String, CommandOperation> initCommandMapTag() {
+    private LinkedHashMap<String, CommandOperation> initCommandMapTag(CommandOperation doInventoryCommandOperation) {
         LinkedHashMap<String, CommandOperation> tagCommandMap = new LinkedHashMap<>();
         tagCommandMap.put(getString(R.string.command_select_command), null);
+
+        // DUPLICATED COMMAND ALSO IN TAG
+        tagCommandMap.put(getString(R.string.command_do_inventory), doInventoryCommandOperation);
 
         tagCommandMap.put(getString(R.string.command_write_access_password), () -> {
             if (selectedTag != null) {
@@ -1113,15 +1137,13 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                     WriteAccessPasswordDialogFragment dialog = WriteAccessPasswordDialogFragment.newInstance
                             (selectedTag.toString());
                     dialog.show(getSupportFragmentManager(), "WriteAccessPasswordDialogFragment");
-                }
-                else {
+                } else {
                     composeAndAppendInputCommandMsg(getString(R.string
                             .invalid_command_no_epc_for_writing_access_password), getMsgColor(R.color
                             .colorErrorText));
                     allowSendCommand();
                 }
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1131,8 +1153,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             if (selectedTag != null) {
                 ReadTagDialogFragment dialog = ReadTagDialogFragment.newInstance(selectedTag.toString());
                 dialog.show(getSupportFragmentManager(), "ReadTagDialogFragment");
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1144,8 +1165,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 WriteTagDialogFragment dialog = WriteTagDialogFragment.newInstance(selectedTag.toString(),
                         requirePassword);
                 dialog.show(getSupportFragmentManager(), "WriteTagDialogFragment");
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1157,12 +1177,10 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 if (selectedTag instanceof EPC_tag) {
                     LockTagDialogFragment dialog = LockTagDialogFragment.newInstance(selectedTag.toString());
                     dialog.show(getSupportFragmentManager(), "LockTagDialogFragment");
-                }
-                else {
+                } else {
                     onLockTag(0, null);
                 }
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1176,14 +1194,12 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                     composeAndAppendInputCommandMsg(getString(R.string.reading_tid, selectedTag.toString()),
                             getMsgColor(R.color.colorReadText));
                     bleServicePassive.requestReadTID((EPC_tag) selectedTag);
-                }
-                else {
+                } else {
                     composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_reading_tid),
                             getMsgColor(R.color.colorErrorText));
                     allowSendCommand();
                 }
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1194,17 +1210,14 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
 
             if (selectedTag != null) {
                 if (selectedTag instanceof EPC_tag) {
-                    composeAndAppendInputCommandMsg(getString(R.string.writing_id, selectedTag.toString()),
-                            getMsgColor(R.color.colorReadText));
-                    bleServicePassive.requestWriteID((EPC_tag) selectedTag);
-                }
-                else {
+                    WriteIdDialogFragment dialog = WriteIdDialogFragment.newInstance(selectedTag.toString());
+                    dialog.show(getSupportFragmentManager(), "WriteIdDialogFragment");
+                } else {
                     composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_writing_tid),
                             getMsgColor(R.color.colorErrorText));
                     allowSendCommand();
                 }
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1217,15 +1230,13 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                     WriteKillPasswordDialogFragment dialog = WriteKillPasswordDialogFragment.newInstance
                             (selectedTag.toString());
                     dialog.show(getSupportFragmentManager(), "WriteKillPasswordDialogFragment");
-                }
-                else {
+                } else {
                     composeAndAppendInputCommandMsg(getString(R.string
                             .invalid_command_no_epc_for_writing_kill_password), getMsgColor(R.color
                             .colorErrorText));
                     allowSendCommand();
                 }
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1238,14 +1249,12 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                     KillTagDialogFragment dialog = KillTagDialogFragment.newInstance(selectedTag.toString());
 
                     dialog.show(getSupportFragmentManager(), "KillTidDialogFragment");
-                }
-                else {
+                } else {
                     composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_epc_for_killing),
                             getMsgColor(R.color.colorErrorText));
                     allowSendCommand();
                 }
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_no_tag_found),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1254,7 +1263,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         return tagCommandMap;
     }
 
-    private LinkedHashMap<String, CommandOperation> initCommandMapTertium() {
+    private LinkedHashMap<String, CommandOperation> initCommandMapTertium(CommandOperation doInventoryCommandOperation) {
         LinkedHashMap<String, CommandOperation> tertiumCommandMap = new LinkedHashMap<>();
         tertiumCommandMap.put(getString(R.string.command_select_command), null);
 
@@ -1269,8 +1278,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             if (bleServicePassive.requestIsHF()) {
                 bleServicePassive.requestSetRFpower(PassiveReader.HF_RF_FULL_POWER, PassiveReader
                         .HF_RF_AUTOMATIC_POWER);
-            }
-            else if (bleServicePassive.requestIsUHF()) {
+            } else if (bleServicePassive.requestIsUHF()) {
                 bleServicePassive.requestSetRFpower(PassiveReader.UHF_RF_POWER_0_DB, PassiveReader
                         .UHF_RF_POWER_AUTOMATIC_MODE);
             }
@@ -1279,8 +1287,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         tertiumCommandMap.put(getString(R.string.command_set_iso15693_opt_bit), () -> {
             if (bleServicePassive.requestIsHF()) {
                 bleServicePassive.requestSetISO15693optionBits(PassiveReader.ISO15693_OPTION_BITS_NONE);
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1289,8 +1296,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         tertiumCommandMap.put(getString(R.string.command_get_iso15693_opt_bit), () -> {
             if (bleServicePassive.requestIsHF()) {
                 bleServicePassive.requestGetISO15693optionBits();
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1299,8 +1305,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         tertiumCommandMap.put(getString(R.string.command_set_iso15693_ext_flag), () -> {
             if (bleServicePassive.requestIsHF()) {
                 bleServicePassive.requestSetISO15693extensionFlag(false, false);
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1309,8 +1314,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         tertiumCommandMap.put(getString(R.string.command_get_iso15693_ext_flag), () -> {
             if (bleServicePassive.requestIsHF()) {
                 bleServicePassive.requestGetISO15693extensionFlag();
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1319,8 +1323,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         tertiumCommandMap.put(getString(R.string.command_set_iso15693_bitrate), () -> {
             if (bleServicePassive.requestIsHF()) {
                 bleServicePassive.requestSetISO15693bitrate(PassiveReader.ISO15693_HIGH_BITRATE, false);
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1329,8 +1332,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         tertiumCommandMap.put(getString(R.string.command_get_iso15693_bitrate), () -> {
             if (bleServicePassive.requestIsHF()) {
                 bleServicePassive.requestGetISO15693bitrate();
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_HF_reader),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1339,8 +1341,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         tertiumCommandMap.put(getString(R.string.command_set_epc_freq), () -> {
             if (bleServicePassive.requestIsUHF()) {
                 bleServicePassive.requestSetEpcFrequency(PassiveReader.RF_CARRIER_866_9_MHZ);
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_UHF_reader),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1349,8 +1350,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         tertiumCommandMap.put(getString(R.string.command_get_epc_freq), () -> {
             if (bleServicePassive.requestIsUHF()) {
                 bleServicePassive.requestGetEpcFrequency();
-            }
-            else {
+            } else {
                 composeAndAppendInputCommandMsg(getString(R.string.invalid_command_not_UHF_reader),
                         getMsgColor(R.color.colorErrorText));
                 allowSendCommand();
@@ -1365,13 +1365,14 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         tertiumCommandMap.put(getString(R.string.command_set_inventory_mode_scan_on_input), () -> bleServicePassive.requestSetInventoryMode(PassiveReader.SCAN_ON_INPUT_MODE));
         tertiumCommandMap.put(getString(R.string.command_set_inventory_mode_normal), () -> bleServicePassive.requestSetInventoryMode(PassiveReader.NORMAL_MODE));
 
-        tertiumCommandMap.put(getString(R.string.command_do_inventory), () -> {
-            clearTags();
-
-            bleServicePassive.requestDoInventory();
-            // special management of doInventory command, without callback
-            new Handler(Looper.getMainLooper()).postDelayed(this::allowSendCommand, 2000);
+        tertiumCommandMap.put(getString(R.string.command_set_inventory_format), () -> {
+            SetInventoryFormatDialogFragment dialog = SetInventoryFormatDialogFragment.newInstance();
+            dialog.show(getSupportFragmentManager(), "SetInventoryFormatDialogFragment");
         });
+
+
+        // DUPLICATED COMMAND ALSO IN TAG
+        tertiumCommandMap.put(getString(R.string.command_do_inventory), doInventoryCommandOperation);
 
         tertiumCommandMap.put(getString(R.string.command_reset), () -> bleServicePassive.requestReset(true));
 
@@ -1449,8 +1450,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
                 if (bleServicePassive.requestIsHF()) {
                     composeAndAppendInitMsg(getString(R.string.reader_is_hf),
                             getMsgColor(R.color.colorReadText));
-                }
-                else if (bleServicePassive.requestIsUHF()) {
+                } else if (bleServicePassive.requestIsUHF()) {
                     composeAndAppendInitMsg(getString(R.string.reader_is_uhf),
                             getMsgColor(R.color.colorReadText));
                 }
@@ -1461,37 +1461,32 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
             if (bleServicePassive != null) {
                 if (bleServicePassive.requestIsHF()) {
                     bleServicePassive.requestSetInventoryType(PassiveReader.ISO15693_AND_ISO14443A_STANDARD);
-                }
-                else if (bleServicePassive.requestIsUHF()) {
+                } else if (bleServicePassive.requestIsUHF()) {
                     bleServicePassive.requestSetInventoryType(PassiveReader.EPC_STANDARD);
                 }
-            }
-            else {
+            } else {
                 initialCommandChain.executeNext();
             }
         });
         initialCommandList.add(() -> {
             if (bleServicePassive != null) {
                 bleServicePassive.requestGetFirmwareVersion();
-            }
-            else {
+            } else {
                 initialCommandChain.executeNext();
             }
         });
         initialCommandList.add(() -> {
             if (bleServicePassive != null) {
                 bleServicePassive.requestSetInventoryMode(PassiveReader.NORMAL_MODE);
-            }
-            else {
+            } else {
                 initialCommandChain.executeNext();
             }
         });
         initialCommandList.add(() -> {
             if (bleServicePassive != null) {
-                bleServicePassive.requestSetInventoryParameters(PassiveReader.FEEDBACK_SOUND_AND_LIGHT, 1000,
-                        1000);
-            }
-            else {
+                bleServicePassive.requestSetInventoryParameters(PassiveReader.FEEDBACK_SOUND_AND_LIGHT, 2500,
+                        500);
+            } else {
                 initialCommandChain.executeNext();
             }
         });
@@ -1526,16 +1521,14 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         repeatingCommandList.add(() -> {
             if (bleServicePassive != null) {
                 bleServicePassive.requestBatteryStatus();
-            }
-            else {
+            } else {
                 repeatingCommandChain.executeNext();
             }
         });
         repeatingCommandList.add(() -> {
             if (bleServicePassive != null && bleServicePassive.requestIsHF()) {
                 bleServicePassive.requestBatteryLevel();
-            }
-            else {
+            } else {
                 repeatingCommandChain.executeNext();
             }
         });
@@ -1681,7 +1674,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         initScrollView = findViewById(R.id.init_scroll_view);
         initTextView = findViewById(R.id.init_text_view);
 
-        RecyclerView inventoryRecyclerView = findViewById(R.id.inventory_recycler_view);
+        inventoryRecyclerView = findViewById(R.id.inventory_recycler_view);
 
         if (inventoryRecyclerView != null) {
             inventoryRecyclerView.setHasFixedSize(true);
@@ -1772,8 +1765,7 @@ public class DeviceActivityPassive extends AppCompatActivity implements ReadTagD
         if (bleServicePassive != null && connectionState == ConnectionState.CONNECTED) {
             if (!bleServicePassive.isDeviceConnected(deviceAddress)) {
                 bleServicePassive.connect(deviceAddress);
-            }
-            else {
+            } else {
                 startRepeatingOperations();
             }
         }

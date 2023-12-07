@@ -8,4 +8,8 @@
 
     <!-- DeviceActivityPassive -->
     <string name="error_invalid_action">Invalid action</string>
+
+    <!-- WriteIdDialog -->
+    <string name="error_write_id_bad_format">Invalid Id to write: bad format</string>
+    <string name="error_write_id_invalid_nsi">Invalid NSI</string>
 </resources>
